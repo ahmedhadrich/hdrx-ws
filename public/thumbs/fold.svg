@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="f-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f1414"/>
+      <stop offset="100%" stop-color="#0b0b0e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#f-bg)"/>
+  <g opacity="0.55">
+    <polygon points="200,300 800,300 600,700 0,700" fill="#7AC2C9" opacity="0.18"/>
+    <polygon points="800,300 1400,300 1600,700 600,700" fill="#7AC2C9" opacity="0.12"/>
+    <line x1="200" y1="300" x2="0" y2="700" stroke="#7AC2C9" stroke-width="1.5" opacity="0.6"/>
+    <line x1="800" y1="300" x2="600" y2="700" stroke="#7AC2C9" stroke-width="1.5" opacity="0.6"/>
+    <line x1="1400" y1="300" x2="1600" y2="700" stroke="#7AC2C9" stroke-width="1.5" opacity="0.6"/>
+  </g>
+  <text x="80" y="180" fill="rgba(244,244,238,0.9)" font-family="ui-serif, Georgia, serif" font-size="120" font-weight="600" letter-spacing="-3">Fold</text>
+  <text x="80" y="920" fill="rgba(244,244,238,0.5)" font-family="ui-monospace, monospace" font-size="22" letter-spacing="3">BRAND · 2023</text>
+</svg>
