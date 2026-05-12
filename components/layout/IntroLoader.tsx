@@ -33,7 +33,6 @@ export function IntroLoader() {
   const containerRef = useRef<HTMLDivElement>(null);
   const cubeRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
-  const markRef = useRef<HTMLSpanElement>(null);
   const overlayDarkRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,17 +66,15 @@ export function IntroLoader() {
     const run = async () => {
       const cube = cubeRef.current;
       const logo = logoRef.current;
-      const mark = markRef.current;
       const darkOverlay = overlayDarkRef.current;
       const container = containerRef.current;
 
-      if (!cube || !logo || !mark || !darkOverlay || !container) return;
+      if (!cube || !logo || !darkOverlay || !container) return;
 
       // Snap all elements to their starting states (duration 0)
       const letters = logo.querySelectorAll<HTMLElement>('[data-letter]');
       animate(cube, { scale: 0, y: 60, opacity: 1 }, { duration: 0 });
       animate(logo, { x: '41%', opacity: 1 }, { duration: 0 });
-      animate(mark, { opacity: 0 }, { duration: 0 });
       animate(darkOverlay, { opacity: 0 }, { duration: 0 });
       if (letters.length > 0) {
         animate(letters, { y: '110%' }, { duration: 0 });
@@ -98,8 +95,6 @@ export function IntroLoader() {
         duration: 0.9,
         ease: EASE_QUART_INOUT,
       });
-      animate(mark, { opacity: 1 }, { duration: 0.5, ease: 'easeOut' });
-
       if (letters.length > 0) {
         animate(letters, { y: ['110%', '0%'] }, {
           duration: 0.8,
@@ -186,20 +181,6 @@ export function IntroLoader() {
           opacity: 0,
         }}
       >
-        {/* ✴ mark — fades in during Phase 2 */}
-        <span
-          ref={markRef}
-          style={{
-            fontSize: '3rem',
-            color: 'var(--accent-signal)',
-            lineHeight: 1,
-            display: 'block',
-          }}
-          aria-hidden="true"
-        >
-          ✴
-        </span>
-
         {/* Name — each letter wipes upward in Phase 2 */}
         <span style={{ fontSize: 'clamp(1.4rem, 3vw, 2.2rem)', letterSpacing: '0.18em' }}>
           <SplitText

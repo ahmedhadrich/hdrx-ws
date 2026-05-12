@@ -82,7 +82,7 @@ function ProjectCard({ project }: { project: Project }) {
           </span>
         </h3>
 
-        <p className="text-ink-secondary text-sm italic">{project.role}</p>
+        <p className="text-ink-secondary text-sm">{project.role}</p>
         <p className="text-ink-primary text-base leading-body line-clamp-2">{project.impact}</p>
 
         <ul

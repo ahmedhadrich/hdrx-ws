@@ -32,481 +32,393 @@ export interface Project {
 export const projects: Project[] = [
   {
     slug: 'meridian',
-    title: 'Meridian',
+    title: 'Energy Analytics Platform',
     type: 'Product',
-    role: 'Lead engineer · co-designer',
+    role: 'Product lead · front-end build · UX',
     year: 2025,
-    tags: ['Next.js', 'Postgres', 'Realtime', 'Design system'],
+    tags: ['Energy', 'Dashboard', 'Next.js', 'UX'],
     impact:
-      'Took a five-person ops team from spreadsheets to a real-time platform handling 1.2M daily events.',
+      'Turned a mess of energy data into a dashboard operators actually open in the morning.',
     thumbnail: '/thumbs/meridian.svg',
     accent: '#FF5A1F',
     featured: true,
     caseStudy: {
       problem:
-        'A five-person ops team managing critical workflows across spreadsheets and email threads — no single source of truth, no real-time visibility, no way to scale.',
+        'A working group sitting on years of energy data with no clear way to see it. Reports landed in inboxes, decisions waited on spreadsheets, and the people closest to the meters had the least visibility.',
       subLinks: [
-        'Real-time architecture',
-        'Postgres schema design',
-        'Next.js App Router',
-        'Event streaming pipeline',
-        'Design system build',
-        'Operational dashboards',
-        'Access control and roles',
-        'Data migration strategy',
-        'Mobile-first UI',
-        'Performance profiling',
-        'API design',
-        'Team documentation',
+        'Stakeholder discovery',
+        'Requirements shaping',
+        'Information architecture',
+        'UX wireframing',
+        'Front-end build',
+        'Charting and data viz',
+        'Component library',
+        'Backend handoff specs',
+        'Release planning',
+        'User testing',
+        'Operator onboarding',
+        'Documentation',
       ],
       phases: [
         {
           num: '01',
           title: 'Discovery',
           description:
-            'Four days of pairing with every operator — mapping their actual workflows, not the ones they thought they had.',
+            'Sat with operators, analysts, and management — separately — until the actual workflow emerged from the official one.',
         },
         {
           num: '02',
-          title: 'Architecture',
+          title: 'Scoping',
           description:
-            'Schema-first: defined the event model, permission topology, and realtime propagation rules before a single component was written.',
+            'Boiled a long wishlist down to the three views that would change the day-to-day. Everything else went into a clearly labeled v2.',
         },
         {
           num: '03',
-          title: 'Platform Build',
+          title: 'UX & Prototype',
           description:
-            'Twelve weeks of focused execution — core data layer, realtime engine, and the primary ops surface built in parallel.',
+            'Wireframed the core surfaces, then built a clickable prototype to validate the IA before a single chart was wired to data.',
         },
         {
           num: '04',
-          title: 'Integration',
+          title: 'Front-end Build',
           description:
-            'Connected three legacy data sources with zero downtime using a careful migration-with-shadow strategy.',
+            'Shipped the front-end in Next.js with a small reusable chart kit. Coordinated with backend on a clean API contract — no ad-hoc fields.',
         },
         {
           num: '05',
-          title: 'Ship and Monitor',
+          title: 'Handoff & Rollout',
           description:
-            'Phased rollout over two weeks, watching every metric, tuning the realtime fanout under real production load.',
+            'Wrote the operator guide, ran two onboarding sessions, and stayed on call for the first weeks of live use.',
         },
       ],
       outcomes: [
-        'Eliminated spreadsheet-based operations entirely',
-        '1.2M daily events processed in real-time',
-        '30-day full-team adoption cycle',
-        'Zero downtime in the first six months',
+        'Single source of truth replaced four parallel spreadsheets',
+        'Daily decision loop shortened from days to minutes',
+        'Adopted across operations, analysis, and management',
+        'Hand-off package allowed the in-house team to extend it without me',
       ],
       techStack: [
         'Next.js',
         'TypeScript',
-        'Postgres',
-        'Supabase',
-        'Redis',
+        'React',
         'Tailwind CSS',
-        'Framer Motion',
-        'Zod',
-        'Prisma',
-        'Vercel',
-        'GitHub Actions',
+        'Recharts',
+        'REST API',
         'Figma',
+        'Vercel',
       ],
     },
   },
   {
     slug: 'shoreline',
-    title: 'Shoreline',
-    type: 'System',
-    role: 'Architected and built',
+    title: 'Web Platform Launch',
+    type: 'Product',
+    role: 'Project lead · front-end engineer',
     year: 2024,
-    tags: ['Edge', 'TypeScript', 'Queues'],
-    impact: 'Cut deployment time from 40 minutes to 90 seconds across twelve services.',
+    tags: ['Web', 'Responsive', 'Delivery'],
+    impact:
+      'Took a stalled web platform from kickoff to launch in one quarter, on scope and on time.',
     thumbnail: '/thumbs/shoreline.svg',
     accent: '#7AC2C9',
     caseStudy: {
       problem:
-        'Twelve services sharing a single deployment pipeline — 40-minute release windows, cascading failures, and engineers afraid to push on Fridays.',
+        'A platform that had been talked about for a year but never shipped — competing visions, no clear scope, and a deadline that kept slipping by another two weeks every two weeks.',
       subLinks: [
-        'Pipeline architecture',
-        'Edge function deployment',
-        'Queue-based orchestration',
-        'TypeScript migration',
-        'Service isolation design',
-        'Parallel deployment',
-        'Rollback automation',
-        'Load testing suite',
-        'Monitoring and alerting',
-        'CI/CD configuration',
-        'Zero-downtime strategy',
-        'Developer tooling',
+        'Scope definition',
+        'Stakeholder alignment',
+        'Roadmap',
+        'Design coordination',
+        'Front-end implementation',
+        'Responsive layout',
+        'Content modeling',
+        'CMS integration',
+        'QA and bug triage',
+        'Launch checklist',
+        'Analytics setup',
+        'Post-launch support',
+      ],
+      phases: [
+        {
+          num: '01',
+          title: 'Re-scoping',
+          description:
+            'Ran a one-week reset — surfaced what was actually blocking, agreed a v1 everyone could defend, and put the rest in a phase 2 doc.',
+        },
+        {
+          num: '02',
+          title: 'Roadmap',
+          description:
+            'Built a delivery plan with weekly checkpoints and clear owners — no more standing meetings to figure out who owned what.',
+        },
+        {
+          num: '03',
+          title: 'Design + Front-end',
+          description:
+            'Worked alongside the designer, building screens as components in parallel so feedback could land in code, not slides.',
+        },
+        {
+          num: '04',
+          title: 'Integration',
+          description:
+            'Wired the front-end to the CMS, ran content rehearsals with the editorial team, and ironed out the long tail of edge cases.',
+        },
+        {
+          num: '05',
+          title: 'Launch',
+          description:
+            'Shipped on the agreed date, watched analytics for the first week, and handled the inevitable small fires before they grew.',
+        },
+      ],
+      outcomes: [
+        'Launched on the agreed date after a year of slippage',
+        'Responsive across mobile, tablet, and desktop without a rebuild',
+        'Editorial team able to publish without engineering involvement',
+        'Stakeholders aligned on a clear v2 backlog instead of competing roadmaps',
+      ],
+      techStack: [
+        'Next.js',
+        'TypeScript',
+        'Tailwind CSS',
+        'Headless CMS',
+        'Framer Motion',
+        'Vercel',
+        'Figma',
+        'Notion',
+      ],
+    },
+  },
+  {
+    slug: 'parallax',
+    title: '3D Experience Space',
+    type: 'Experiment',
+    role: 'Designed and built solo',
+    year: 2025,
+    tags: ['WebGL', 'R3F', 'Three.js', 'Interaction'],
+    impact:
+      'Built an interactive 3D space to showcase work — half experiment, half playground for new interfaces.',
+    thumbnail: '/thumbs/parallax.svg',
+    accent: '#E9DFC8',
+    featured: true,
+    caseStudy: {
+      problem:
+        'Most portfolios are a list. I wanted a place — somewhere projects sit in space, with their own weight, that you navigate instead of scroll past.',
+      subLinks: [
+        'Concept and moodboard',
+        'Scene composition',
+        'WebGL pipeline',
+        'React Three Fiber setup',
+        'Glass material tuning',
+        'Camera choreography',
+        'Hover and focus interactions',
+        'Performance budget',
+        '2D fallback design',
+        'Mobile path',
+        'Reduced-motion path',
+        'Accessibility overlay',
+      ],
+      phases: [
+        {
+          num: '01',
+          title: 'Concept',
+          description:
+            'Sketched the spatial idea: floating glass panels in a calm scene, gentle camera drift, projects with their own gravity.',
+        },
+        {
+          num: '02',
+          title: 'R3F Build',
+          description:
+            'Set up the React Three Fiber scene — physical materials, environment lighting, custom camera path. Iterated on feel, not features.',
+        },
+        {
+          num: '03',
+          title: 'Interaction',
+          description:
+            'Added hover lift, focus state, and a screen-space metadata overlay so the panels read as content, not decoration.',
+        },
+        {
+          num: '04',
+          title: 'Fallback',
+          description:
+            'Designed a CSS-only 3D-feeling fallback for mobile and reduced-motion — same panel design, no WebGL cost.',
+        },
+        {
+          num: '05',
+          title: 'Polish',
+          description:
+            'Profiled on every device I could borrow, clamped DPR, and tuned the scene until it held 60fps on a base M1.',
+        },
+      ],
+      outcomes: [
+        'Holds 60fps on M1 with full glass materials',
+        'Graceful CSS fallback on mobile and reduced-motion',
+        'Lazy-loaded — adds nothing to first paint',
+        'A genuine playground for the next interaction ideas',
+      ],
+      techStack: [
+        'React Three Fiber',
+        'Three.js',
+        'GLSL',
+        'Next.js',
+        'TypeScript',
+        'Framer Motion',
+        'Tailwind CSS',
+        'Vercel',
+      ],
+    },
+  },
+  {
+    slug: 'ember',
+    title: 'Workflow & Automation',
+    type: 'System',
+    role: 'PM · process design · dev coordination',
+    year: 2024,
+    tags: ['Process', 'Automation', 'PM'],
+    impact:
+      'Took a tangle of email threads and shared drives and turned it into a system the team actually trusted.',
+    thumbnail: '/thumbs/ember.svg',
+    accent: '#7B1F1F',
+    caseStudy: {
+      problem:
+        'A client running critical workflows on email, attachments, and tribal knowledge. Every new hire took months to ramp, and every handoff lost something on the way.',
+      subLinks: [
+        'Process mapping',
+        'Stakeholder interviews',
+        'Workflow redesign',
+        'Tooling selection',
+        'Backlog and release plan',
+        'Developer coordination',
+        'Automation specs',
+        'QA and rollout',
+        'Change management',
+        'Training materials',
+        'Documentation',
+        'Post-rollout review',
+      ],
+      phases: [
+        {
+          num: '01',
+          title: 'Mapping',
+          description:
+            'Drew the existing workflow on a wall — every handoff, every approval, every place a thing fell on the floor.',
+        },
+        {
+          num: '02',
+          title: 'Redesign',
+          description:
+            'Proposed a slimmer flow with clear ownership and three points of automation. Got sign-off before anyone touched a tool.',
+        },
+        {
+          num: '03',
+          title: 'Backlog',
+          description:
+            'Translated the redesign into a sequenced backlog with acceptance criteria — handed it to the dev team in a state they could just pick up and run with.',
+        },
+        {
+          num: '04',
+          title: 'Implementation',
+          description:
+            'Coordinated the build, ran weekly demos with the operators, and adjusted scope as the real edge cases surfaced.',
+        },
+        {
+          num: '05',
+          title: 'Rollout',
+          description:
+            'Trained the team in two short sessions, ran a parallel period, and switched off the old way once everyone was comfortable.',
+        },
+      ],
+      outcomes: [
+        'Onboarding time for new hires cut roughly in half',
+        'Handoffs traceable end-to-end instead of buried in inboxes',
+        'Three high-friction steps fully automated',
+        'Process documented well enough to outlive me',
+      ],
+      techStack: [
+        'Notion',
+        'Airtable',
+        'Zapier',
+        'Linear',
+        'Figma',
+        'Slack',
+        'Custom scripts (TypeScript)',
+        'Google Workspace',
+      ],
+    },
+  },
+  {
+    slug: 'fold',
+    title: 'Design-to-Dev Systems',
+    type: 'System',
+    role: 'Lead — design system + dev handoff',
+    year: 2023,
+    tags: ['Design system', 'Components', 'Tokens'],
+    impact:
+      'Built small design systems and component libraries so designers, devs, and content people stopped arguing about spacing.',
+    thumbnail: '/thumbs/fold.svg',
+    accent: '#7AC2C9',
+    caseStudy: {
+      problem:
+        'Teams shipping the same button six different ways. Every new screen kicked off another spacing debate. Designers and developers technically working from the same files, practically from different planets.',
+      subLinks: [
+        'Design audit',
+        'Token system',
+        'Type and color scales',
+        'Spacing and radius rules',
+        'Component inventory',
+        'React component library',
+        'Figma library mirror',
+        'Documentation site',
+        'Contribution guide',
+        'Versioning strategy',
+        'Adoption rollout',
+        'Office hours',
       ],
       phases: [
         {
           num: '01',
           title: 'Audit',
           description:
-            'Traced every dependency in the existing pipeline — where coupling crept in, which services owned what, and which failures cascaded.',
+            'Pulled every UI surface into one board and counted the variants. The pitch wrote itself.',
         },
         {
           num: '02',
-          title: 'Architecture',
+          title: 'Tokens',
           description:
-            'Designed isolated deployment units per service with shared artifact caching and parallel execution paths.',
+            'Defined a small, opinionated set of tokens — color, type, spacing, radius — exposed as CSS custom properties and Figma styles.',
         },
         {
           num: '03',
-          title: 'Pipeline Rebuild',
+          title: 'Components',
           description:
-            'Rebuilt the CI/CD backbone service by service, running old and new pipelines in shadow mode until confidence was high.',
+            'Built a focused React component library mirrored 1:1 in Figma. Same names, same props, same behavior on both sides.',
         },
         {
           num: '04',
-          title: 'Rollout',
+          title: 'Docs',
           description:
-            'Graduated migration over three weeks — five services first, then all twelve, with automatic rollback guards on every deploy.',
+            'Shipped a docs site with usage examples, do/don’t guidance, and a contribution guide so the system could grow without me as a bottleneck.',
         },
         {
           num: '05',
-          title: 'Hardening',
+          title: 'Adoption',
           description:
-            'Stress-tested parallel execution limits, profiled cold-start behavior, and documented every escape hatch for the team.',
+            'Ran weekly office hours during rollout. Migrated screens with the teams instead of throwing the system over the wall.',
         },
       ],
       outcomes: [
-        'Deploy time cut from 40 minutes to 90 seconds',
-        'Zero shared pipeline dependencies across all services',
-        '4× weekly release cadence after rollout',
-        'No engineer-initiated rollbacks in three months',
+        'One source of truth for tokens across design and code',
+        'New screens assembled from existing components, not designed from scratch',
+        'Spacing and color debates effectively retired',
+        'System maintained by the in-house team after handoff',
       ],
       techStack: [
-        'TypeScript',
-        'Edge Functions',
-        'Node.js',
-        'GitHub Actions',
-        'Docker',
-        'Redis',
-        'Bash',
-        'Datadog',
-        'Terraform',
-        'Vercel Edge',
-      ],
-    },
-  },
-  {
-    slug: 'ember',
-    title: 'Ember',
-    type: 'Tool',
-    role: 'Designed and built solo',
-    year: 2024,
-    tags: ['CLI', 'Rust', 'DX'],
-    impact: 'Open-source CLI now used by 8k+ developers monthly to scaffold typed API clients.',
-    thumbnail: '/thumbs/ember.svg',
-    accent: '#7B1F1F',
-    caseStudy: {
-      problem:
-        'Every team was hand-rolling API clients from scratch — days lost to boilerplate, type drift, and specs that diverged from reality the moment they were written.',
-      subLinks: [
-        'CLI architecture',
-        'OpenAPI parsing',
-        'TypeScript codegen',
-        'Rust performance core',
-        'Plugin system design',
-        'Documentation generator',
-        'Version management',
-        'Community tooling',
-        'Testing harness',
-        'CI/CD pipeline',
-        'npm publishing',
-        'Contribution guide',
-      ],
-      phases: [
-        {
-          num: '01',
-          title: 'Research',
-          description:
-            'Surveyed 30 developers about their API client workflow — the patterns, the pain, and the hacks they had normalized over years.',
-        },
-        {
-          num: '02',
-          title: 'Schema Design',
-          description:
-            'Defined the generator type model: how OpenAPI specifications map to idiomatic TypeScript, covering every edge case.',
-        },
-        {
-          num: '03',
-          title: 'CLI Architecture',
-          description:
-            'Built the core in Rust for performance with a thin JS CLI layer for ergonomics. Schema in, typed client out.',
-        },
-        {
-          num: '04',
-          title: 'Open-Source Launch',
-          description:
-            'Shipped publicly on a Wednesday with zero marketing — Hacker News front page by Thursday morning.',
-        },
-        {
-          num: '05',
-          title: 'Community',
-          description:
-            'Responded to every issue and PR in the first month, establishing the patterns that let 47 contributors join the codebase.',
-        },
-      ],
-      outcomes: [
-        '8k+ monthly active developers within six months',
-        'Adopted by 40+ teams in the first three months',
-        '70% average reduction in API client boilerplate',
-        '47 contributors — none paid',
-      ],
-      techStack: [
-        'Rust',
-        'TypeScript',
-        'Node.js',
-        'OpenAPI 3.x',
-        'Zod',
-        'Cargo',
-        'GitHub Actions',
-        'npm',
-        'Vite',
-        'Jest',
-        'esbuild',
-      ],
-    },
-  },
-  {
-    slug: 'parallax',
-    title: 'Parallax',
-    type: 'Experiment',
-    role: 'Direction and engineering',
-    year: 2025,
-    tags: ['WebGL', 'Shaders', 'GLSL'],
-    impact:
-      'Cinematic shader-driven landing system shipped for a launch with 240k visitors in 48 hours.',
-    thumbnail: '/thumbs/parallax.svg',
-    accent: '#E9DFC8',
-    featured: true,
-    caseStudy: {
-      problem:
-        'A product launch needed an interface that felt as cinematic as the product itself — not a landing page, but a spatial experience that commanded attention from frame one.',
-      subLinks: [
-        'WebGL pipeline design',
-        'Custom GLSL shaders',
-        'Scene composition',
-        'Camera choreography',
-        'Performance optimization',
-        'Mobile fallback system',
-        'Asset pipeline',
-        'Load time budget',
-        'Cross-browser testing',
-        'Accessibility path',
-        'Analytics integration',
-        'Launch coordination',
-      ],
-      phases: [
-        {
-          num: '01',
-          title: 'Creative Direction',
-          description:
-            'Two days of moodboarding and reference extraction — identifying the visual signature that would make this launch unforgettable.',
-        },
-        {
-          num: '02',
-          title: 'Shader R&D',
-          description:
-            'Six prototyping sprints: noise fields, fluid displacement, chromatic aberration, light scattering. Picked one. Threw the rest away.',
-        },
-        {
-          num: '03',
-          title: 'Scene Composition',
-          description:
-            'Built the spatial layout — camera path, timing choreography, and content integration points where type meets the shader field.',
-        },
-        {
-          num: '04',
-          title: 'Performance',
-          description:
-            'Profiled on every major device class. Cut the bundle in half. Added a WebGL fallback that looked intentional, not degraded.',
-        },
-        {
-          num: '05',
-          title: 'Ship',
-          description:
-            'Launched at midnight with full monitoring. 240k visitors in 48 hours. No crashes, no rollbacks.',
-        },
-      ],
-      outcomes: [
-        '240k visitors in 48 hours with zero performance degradation',
-        'Sub-100ms first contentful paint on 3G networks',
-        'Cited in three design publications within the launch week',
-        '100/100 Lighthouse score on mobile',
-      ],
-      techStack: [
-        'WebGL',
-        'GLSL',
-        'Three.js',
         'React',
-        'Next.js',
-        'GSAP',
         'TypeScript',
-        'Vercel Edge',
-        'Playwright',
-        'Lighthouse CI',
-      ],
-    },
-  },
-  {
-    slug: 'fold',
-    title: 'Fold',
-    type: 'Brand',
-    role: 'Identity and site',
-    year: 2023,
-    tags: ['Identity', 'Editorial', 'Motion'],
-    impact: 'Repositioned a B2B studio; site lifted qualified inbound by 3.2× in two quarters.',
-    thumbnail: '/thumbs/fold.svg',
-    accent: '#7AC2C9',
-    caseStudy: {
-      problem:
-        'A respected B2B studio with strong work but a visual identity indistinguishable from every other agency — nothing to remember, nothing to pursue.',
-      subLinks: [
-        'Brand strategy',
-        'Visual identity system',
-        'Editorial typography',
-        'Motion language',
-        'Brand guidelines',
-        'Site architecture',
-        'Design system build',
-        'Photography direction',
-        'Tone of voice',
-        'Icon system',
-        'Print collateral',
-        'Launch campaign',
-      ],
-      phases: [
-        {
-          num: '01',
-          title: 'Brand Discovery',
-          description:
-            'Workshops with the founders and their best clients — extracting the honest version of what the studio actually stood for.',
-        },
-        {
-          num: '02',
-          title: 'Visual Language',
-          description:
-            'Developed the identity: mark, type pairing, color logic, and the three visual rules that govern everything derived from the brand.',
-        },
-        {
-          num: '03',
-          title: 'Editorial System',
-          description:
-            'Built the typographic system — how the brand speaks in print, digital, pitch decks, and motion.',
-        },
-        {
-          num: '04',
-          title: 'Motion Direction',
-          description:
-            'Defined the animation personality: how the brand enters space, how it exits, what it does when it breathes.',
-        },
-        {
-          num: '05',
-          title: 'Site Build',
-          description:
-            'Designed and built the site in four weeks — every detail held to the identity rules, no exceptions.',
-        },
-      ],
-      outcomes: [
-        '3.2× qualified inbound lift in two quarters',
-        'Fortune 500 client retained after the brand launched',
-        'Featured in Fonts In Use',
-        'Sales cycle shortened by 40% through visual authority',
-      ],
-      techStack: [
+        'Tailwind CSS',
+        'CSS custom properties',
         'Figma',
-        'Next.js',
-        'Framer Motion',
-        'Tailwind CSS',
-        'TypeScript',
-        'Contentful',
-        'Vercel',
-        'Illustrator',
-        'After Effects',
-      ],
-    },
-  },
-  {
-    slug: 'signal',
-    title: 'Signal',
-    type: 'Product',
-    role: 'Founding engineer',
-    year: 2023,
-    tags: ['React', 'GraphQL', 'Realtime'],
-    impact: 'Built the core analytics surface; reached 1k paying teams within ten months of launch.',
-    thumbnail: '/thumbs/signal.svg',
-    accent: '#FF5A1F',
-    caseStudy: {
-      problem:
-        'Strong data, zero clarity. An analytics platform where finding a single metric required three clicks, a filter, and a prayer.',
-      subLinks: [
-        'Information architecture',
-        'Data visualization layer',
-        'React component system',
-        'GraphQL API design',
-        'Realtime subscriptions',
-        'Permission model',
-        'Onboarding flow',
-        'Dashboard builder',
-        'Export pipeline',
-        'Notification system',
-        'Mobile experience',
-        'API documentation',
-      ],
-      phases: [
-        {
-          num: '01',
-          title: 'User Research',
-          description:
-            'Interviewed 12 users across three segments. Found the same three problems in every session. Started there.',
-        },
-        {
-          num: '02',
-          title: 'Information Architecture',
-          description:
-            'Rebuilt the dashboard model from scratch — what shows on first load, how context is preserved, where the mental model breaks.',
-        },
-        {
-          num: '03',
-          title: 'Core Analytics',
-          description:
-            'Shipped the primary data surface in six weeks: charts, filters, and the query engine that made deep exploration feel instant.',
-        },
-        {
-          num: '04',
-          title: 'Realtime Layer',
-          description:
-            'Added the live event stream and alert system — the features that turned casual checkers into daily active users.',
-        },
-        {
-          num: '05',
-          title: 'Launch',
-          description:
-            'Shipped to beta, watched the retention curve, iterated on the one thing that needed fixing, then opened publicly.',
-        },
-      ],
-      outcomes: [
-        '1,000 paying teams reached in ten months',
-        '92% daily active use of the core analytics surface',
-        'Zero paid acquisition — entirely product-led growth',
-        'Three major features shipped in the first quarter',
-      ],
-      techStack: [
-        'React',
-        'TypeScript',
-        'GraphQL',
-        'Apollo Client',
-        'Node.js',
-        'Postgres',
-        'Redis',
-        'WebSocket',
-        'Recharts',
-        'Tailwind CSS',
+        'Storybook',
+        'MDX',
+        'GitHub',
       ],
     },
   },

@@ -32,7 +32,7 @@ export function Capabilities() {
                 transition={{ duration: 0.6, ease: EASE_OUT_SOFT }}
                 className="font-mono text-micro tracking-widest uppercase text-ink-muted flex items-center gap-3"
               >
-                <span className="block w-6 h-px bg-accent-signal" />
+                <span className="block w-6 h-px bg-rule" />
                 {group}
               </motion.h3>
               <ul className="flex flex-col gap-3">

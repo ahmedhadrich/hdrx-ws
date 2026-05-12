@@ -32,9 +32,9 @@ const config: Config = {
         rule: 'var(--rule)',
       },
       fontFamily: {
-        display: ['var(--font-display)', 'serif'],
+        display: ['var(--font-display)', 'sans-serif'],
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
+        mono: ['var(--font-mono)', 'sans-serif'],
       },
       fontSize: {
         display: 'clamp(3.5rem, 8vw, 8rem)',

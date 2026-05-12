@@ -24,13 +24,6 @@ const NAV_LINKS = [
   { label: 'Contact', anchor: '#contact' },
 ] as const;
 
-const SOCIAL_LINKS = [
-  { label: 'GitHub', href: 'https://github.com/' },
-  { label: 'LinkedIn', href: 'https://linkedin.com/' },
-  { label: 'X', href: 'https://x.com/' },
-  { label: 'Email', href: `mailto:${site.email}` },
-] as const;
-
 // ─── Motion variants ───────────────────────────────────────────────────────────
 
 const tickerVariants = {
@@ -181,7 +174,12 @@ export function Nav() {
 
   return (
     <>
-      {/* ── Menu overlay ─────────────────────────────────────────────────── */}
+      {/* ── Single fixed anchor wrapping menu + pills ─────────────────────── */}
+      <div
+        className="fixed z-50"
+        style={{ bottom: '40px', left: '50%', transform: 'translateX(-50%)' }}
+      >
+      {/* ── Menu — absolutely above the left pill ────────────────────────── */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -194,10 +192,10 @@ export function Nav() {
             initial="closed"
             animate="open"
             exit="closed"
-            className="nav-menu nav-menu-panel fixed z-50 flex flex-col"
+            className="nav-menu nav-menu-panel absolute flex flex-col"
             style={{
-              left: '50%',
-              transform: 'translateX(-50%)',
+              bottom: 'calc(100% + 12px)',
+              left: 0,
               width: 'min(276px, calc(100vw - 2rem))',
               backdropFilter: 'blur(24px) saturate(160%)',
               WebkitBackdropFilter: 'blur(24px) saturate(160%)',
@@ -235,28 +233,6 @@ export function Nav() {
               </ul>
             </nav>
 
-            {/* Secondary grid — social links */}
-            <motion.div
-              variants={reduced ? undefined : menuItemVariants}
-              className="px-5 pb-4 pt-2"
-            >
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                {SOCIAL_LINKS.map(({ label, href: socialHref }) => (
-                  <a
-                    key={label}
-                    href={socialHref}
-                    target={socialHref.startsWith('mailto') ? undefined : '_blank'}
-                    rel={socialHref.startsWith('mailto') ? undefined : 'noopener noreferrer'}
-                    onClick={handleLinkClick}
-                    className="font-sans text-sm text-ink-muted hover:text-ink-secondary transition-colors duration-200 py-1.5 focus-visible:outline-2 focus-visible:outline-accent-signal focus-visible:outline-offset-2 rounded"
-                    aria-label={label}
-                  >
-                    {label}
-                  </a>
-                ))}
-              </div>
-            </motion.div>
-
             {/* Bottom bar — ThemeToggle + CTA */}
             <motion.div
               variants={reduced ? undefined : menuItemVariants}
@@ -266,7 +242,7 @@ export function Nav() {
               <a
                 href={href('#contact')}
                 onClick={handleLinkClick}
-                className="inline-flex items-center gap-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-ink-secondary hover:text-ink-primary transition-colors duration-200 border border-rule rounded-full px-4 py-1.5 hover:border-ink-muted focus-visible:outline-2 focus-visible:outline-accent-signal focus-visible:outline-offset-2"
+                className="btn-glass inline-flex items-center gap-1.5 font-mono text-[11px] tracking-[0.08em] uppercase text-ink-secondary hover:text-ink-primary transition-all duration-300 rounded-full px-4 py-1.5 focus-visible:outline-2 focus-visible:outline-accent-signal focus-visible:outline-offset-2"
               >
                 Get in touch
                 <span aria-hidden="true">→</span>
@@ -276,114 +252,114 @@ export function Nav() {
         )}
       </AnimatePresence>
 
-      {/* ── Glass pill ───────────────────────────────────────────────────── */}
+      {/* ── Glass pills ──────────────────────────────────────────────────── */}
       <div
-        className="nav-pill fixed z-50 flex items-stretch overflow-hidden"
-        style={{
-          width: '276px',
-          height: '50px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          backdropFilter: 'blur(20px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(150%)',
-          borderRadius: '999px',
-        }}
+        className="flex items-center gap-3"
         role="navigation"
-        aria-label="Site navigation pill"
+        aria-label="Site navigation"
       >
-        {/* Left zone — Logo */}
-        <a
-          href={isHome ? '#top' : '/'}
-          aria-label={site.name}
-          className="flex items-center justify-center flex-shrink-0 text-ink-primary hover:text-accent-signal transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-accent-signal focus-visible:outline-offset-2 focus-visible:rounded-full"
-          style={{ width: '50px' }}
-        >
-          <span className="font-mono text-[10px] tracking-[0.12em] uppercase select-none">
-            {site.shortName}
-            <span className="text-accent-signal">.</span>
-          </span>
-        </a>
-
-        {/* Divider */}
+        {/* Left pill — Burger + Logo */}
         <div
-          className="nav-divider flex-shrink-0 self-stretch"
-          style={{ width: '1px', margin: '10px 0' }}
-          aria-hidden="true"
-        />
-
-        {/* Center zone — Section ticker */}
-        <div
-          className="flex-1 flex items-center justify-center overflow-hidden"
-          aria-live="polite"
-          aria-atomic="true"
-          aria-label={sectionLabel ? `Current section: ${sectionLabel}` : undefined}
+          className="nav-pill flex items-stretch overflow-hidden"
+          style={{
+            height: '50px',
+            borderRadius: '999px',
+            backdropFilter: 'blur(20px) saturate(150%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+          }}
         >
-          <AnimatePresence mode="wait">
-            {sectionLabel ? (
-              <motion.span
-                key={sectionLabel}
-                variants={tickerVariants}
-                initial={reduced ? { opacity: 0 } : 'enter'}
-                animate={reduced ? { opacity: 1 } : 'visible'}
-                exit={reduced ? { opacity: 0 } : 'exit'}
-                className="font-mono text-[11px] tracking-[0.08em] uppercase text-ink-muted select-none"
-              >
-                {sectionLabel}
-              </motion.span>
-            ) : (
-              <motion.span
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0 }}
-                exit={{ opacity: 0 }}
-                aria-hidden="true"
-              />
-            )}
-          </AnimatePresence>
+          {/* Burger / Close */}
+          <button
+            ref={burgerRef}
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={menuOpen}
+            aria-controls="nav-menu"
+            className="flex items-center justify-center flex-shrink-0 text-ink-primary hover:text-ink-primary/70 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent-signal focus-visible:outline-offset-2 focus-visible:rounded-full"
+            style={{ width: '50px' }}
+          >
+            <AnimatePresence mode="wait">
+              {menuOpen ? (
+                <motion.span
+                  key="close"
+                  initial={reduced ? { opacity: 0 } : { opacity: 0, rotate: -45, scale: 0.8 }}
+                  animate={reduced ? { opacity: 1 } : { opacity: 1, rotate: 0, scale: 1 }}
+                  exit={reduced ? { opacity: 0 } : { opacity: 0, rotate: 45, scale: 0.8 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <CloseIcon />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="burger"
+                  initial={reduced ? { opacity: 0 } : { opacity: 0, rotate: 45, scale: 0.8 }}
+                  animate={reduced ? { opacity: 1 } : { opacity: 1, rotate: 0, scale: 1 }}
+                  exit={reduced ? { opacity: 0 } : { opacity: 0, rotate: -45, scale: 0.8 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <BurgerIcon />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+
+          {/* Divider */}
+          <div
+            className="nav-divider flex-shrink-0 self-stretch"
+            style={{ width: '1px', margin: '10px 0' }}
+            aria-hidden="true"
+          />
+
+          {/* Logo — centered in remaining space */}
+          <a
+            href={isHome ? '#top' : '/'}
+            aria-label={site.name}
+            className="flex items-center justify-center flex-shrink-0 text-ink-primary hover:text-ink-secondary transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-accent-signal focus-visible:outline-offset-2 focus-visible:rounded-full"
+            style={{ width: '70px' }}
+          >
+            <span className="font-mono text-[10px] tracking-[0.12em] uppercase select-none">
+              {site.shortName}
+            </span>
+          </a>
         </div>
 
-        {/* Divider */}
-        <div
-          className="nav-divider flex-shrink-0 self-stretch"
-          style={{ width: '1px', margin: '10px 0' }}
-          aria-hidden="true"
-        />
-
-        {/* Right zone — Burger / Close */}
-        <button
-          ref={burgerRef}
-          type="button"
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          aria-expanded={menuOpen}
-          aria-controls="nav-menu"
-          className="flex items-center justify-center flex-shrink-0 text-ink-primary hover:text-ink-primary/70 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent-signal focus-visible:outline-offset-2 focus-visible:rounded-full"
-          style={{ width: '50px' }}
-        >
-          <AnimatePresence mode="wait">
-            {menuOpen ? (
-              <motion.span
-                key="close"
-                initial={reduced ? { opacity: 0 } : { opacity: 0, rotate: -45, scale: 0.8 }}
-                animate={reduced ? { opacity: 1 } : { opacity: 1, rotate: 0, scale: 1 }}
-                exit={reduced ? { opacity: 0 } : { opacity: 0, rotate: 45, scale: 0.8 }}
-                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <CloseIcon />
-              </motion.span>
-            ) : (
-              <motion.span
-                key="burger"
-                initial={reduced ? { opacity: 0 } : { opacity: 0, rotate: 45, scale: 0.8 }}
-                animate={reduced ? { opacity: 1 } : { opacity: 1, rotate: 0, scale: 1 }}
-                exit={reduced ? { opacity: 0 } : { opacity: 0, rotate: -45, scale: 0.8 }}
-                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <BurgerIcon />
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
+        {/* Right pill — Section ticker */}
+        <AnimatePresence>
+          {sectionLabel && (
+            <motion.div
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -8 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              className="nav-pill flex items-center overflow-hidden"
+              style={{
+                height: '50px',
+                borderRadius: '999px',
+                backdropFilter: 'blur(20px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+                padding: '0 20px',
+              }}
+              aria-live="polite"
+              aria-atomic="true"
+              aria-label={`Current section: ${sectionLabel}`}
+            >
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={sectionLabel}
+                  variants={tickerVariants}
+                  initial={reduced ? { opacity: 0 } : 'enter'}
+                  animate={reduced ? { opacity: 1 } : 'visible'}
+                  exit={reduced ? { opacity: 0 } : 'exit'}
+                  className="font-mono text-[11px] tracking-[0.08em] uppercase text-ink-primary select-none whitespace-nowrap"
+                >
+                  {sectionLabel}
+                </motion.span>
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       </div>
 
     </>

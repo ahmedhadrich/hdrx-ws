@@ -13,13 +13,13 @@ interface BaseProps {
 }
 
 const base =
-  'inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-medium tracking-tight transition duration-300 ease-out-soft will-change-transform select-none';
+  'inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium tracking-tight transition-all duration-300 ease-out-soft will-change-transform select-none hover:-translate-y-px active:translate-y-0 backdrop-blur-xl saturate-150';
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-ink-primary text-bg-base hover:-translate-y-px hover:shadow-lift focus-visible:shadow-glow-signal active:translate-y-0',
+    'nav-pill text-ink-primary focus-visible:shadow-glow-signal',
   ghost:
-    'border border-rule text-ink-primary hover:bg-bg-raised hover:-translate-y-px focus-visible:shadow-glow-signal',
+    'nav-pill text-ink-primary focus-visible:shadow-glow-signal',
 };
 
 type AnchorProps = BaseProps &

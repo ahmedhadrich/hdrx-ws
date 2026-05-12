@@ -44,65 +44,25 @@ export function Hero() {
       className="relative min-h-[100svh] flex flex-col items-center justify-center px-[clamp(1.25rem,4vw,3rem)] pt-16 pb-32 overflow-hidden"
       aria-label="Introduction"
     >
-      {/* Signal horizon vignette */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{
-          background:
-            'radial-gradient(80% 60% at 50% 110%, rgba(255,90,31,0.10), transparent 70%)',
-        }}
-      />
-
       <div className="relative z-10 flex flex-col items-center text-center">
         <h1
           className="font-display leading-[0.88] tracking-[-0.03em] flex flex-col items-center"
           style={{ fontSize: 'clamp(3.5rem, 9vw, 9.5rem)' }}
         >
-          {/* Lines 1–2: light italic — poetic buildup */}
           <LineReveal delay={0.2} reduced={reduced}>
-            <span
-              className="block font-light italic"
-              style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 0" }}
-            >
+            <span className="block font-light">
               {hero.headline[0]}
             </span>
           </LineReveal>
 
-          {/* Bracket row — eyebrow nested inside the headline */}
-          <LineReveal delay={0.3} reduced={reduced} duration={0.5}>
-            <div className="flex items-center justify-center gap-x-[0.2em] my-[0.04em]">
-              <span aria-hidden className="font-light leading-none">(</span>
-              <div
-                className="flex items-center gap-x-[0.35em]"
-                style={{ fontSize: 'clamp(0.65rem, 1.15vw, 0.9rem)' }}
-              >
-                <span aria-hidden className="text-accent-signal leading-none">
-                  ✴
-                </span>
-                <span className="font-mono font-medium tracking-[0.1em] uppercase text-ink-secondary whitespace-nowrap">
-                  {hero.eyebrow}
-                </span>
-              </div>
-              <span aria-hidden className="font-light leading-none">)</span>
-            </div>
-          </LineReveal>
-
           <LineReveal delay={0.4} reduced={reduced}>
-            <span
-              className="block font-light italic"
-              style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 0" }}
-            >
+            <span className="block font-light">
               {hero.headline[1]}
             </span>
           </LineReveal>
 
-          {/* Line 3: semibold upright — the payoff */}
           <LineReveal delay={0.52} reduced={reduced}>
-            <span
-              className="block font-semibold not-italic"
-              style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 8" }}
-            >
+            <span className="block font-semibold">
               {hero.headline[2]}
             </span>
           </LineReveal>
@@ -121,8 +81,6 @@ export function Hero() {
           style={{ width: 'clamp(5rem, 10vw, 9rem)' }}
           aria-hidden
         >
-          <div className="flex-1 h-px bg-rule" />
-          <span className="text-accent-signal text-xs leading-none">✴</span>
           <div className="flex-1 h-px bg-rule" />
         </motion.div>
 
@@ -169,13 +127,13 @@ export function Hero() {
             ? { duration: 0.2, delay: 0.85 }
             : { duration: 0.8, delay: 1.5 }
         }
-        className="absolute bottom-8 flex flex-col items-center gap-2 text-ink-muted pointer-events-none"
+        className="absolute top-8 flex flex-col items-center gap-2 text-ink-muted pointer-events-none"
         aria-hidden
       >
+        <span className="block w-px h-10 bg-gradient-to-t from-ink-muted to-transparent" />
         <span className="font-mono text-micro tracking-widest uppercase">
           {hero.scrollHint}
         </span>
-        <span className="block w-px h-10 bg-gradient-to-b from-ink-muted to-transparent" />
       </motion.div>
     </section>
   );

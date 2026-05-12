@@ -33,13 +33,9 @@ export function About() {
             <motion.div
               variants={fadeUp}
               transition={{ duration: 0.7, ease: EASE_OUT_SOFT }}
-              className="flex items-center gap-4"
+              className="w-12 h-px bg-rule"
               aria-hidden="true"
-            >
-              <span className="block flex-1 h-px bg-rule" />
-              <span className="font-display text-2xl text-accent-signal">{about.glyph}</span>
-              <span className="block flex-1 h-px bg-rule" />
-            </motion.div>
+            />
 
             <motion.p
               variants={fadeUp}

@@ -33,10 +33,10 @@ export function Contact() {
             variants={fadeUp}
             transition={{ duration: 0.7, ease: EASE_OUT_SOFT }}
             href={`mailto:${site.email}`}
-            className="group inline-flex items-center gap-4 self-start font-mono text-2xl md:text-4xl text-ink-primary border-b border-rule pb-3 hover:border-accent-signal transition-colors duration-300"
+            className="group inline-flex items-center gap-4 self-start font-mono text-2xl md:text-4xl text-ink-primary border-b border-rule pb-3 hover:border-ink-primary transition-colors duration-300"
           >
             <span>{site.email}</span>
-            <span className="text-accent-signal opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               →
             </span>
           </motion.a>

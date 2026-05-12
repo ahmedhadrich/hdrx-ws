@@ -207,7 +207,7 @@ export function Footer() {
                           }
                       : {}
                   }
-                  className={`block font-mono font-medium uppercase leading-[0.85] tracking-widest select-none${letter === '.' ? ' text-[#ff5a1f]' : ''}`}
+                  className="block font-mono font-medium uppercase leading-[0.85] tracking-widest select-none"
                   style={{ fontSize: 'clamp(5rem,22vw,22rem)' }}
                 >
                   {letter}
