@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="ath-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#141018"/>
+      <stop offset="100%" stop-color="#0b0b0e"/>
+    </linearGradient>
+    <radialGradient id="ath-glow" cx="0.66" cy="0.42" r="0.6">
+      <stop offset="0%" stop-color="#FF5A1F" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#FF5A1F" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#ath-bg)"/>
+  <rect width="1600" height="1000" fill="url(#ath-glow)"/>
+  <g transform="translate(180 220)">
+    <rect x="0" y="0" width="1240" height="560" rx="20" fill="rgba(244,244,238,0.04)" stroke="rgba(244,244,238,0.1)"/>
+    <!-- articulated robotic arm: linked segments with signal-orange joints -->
+    <g transform="translate(360 470)" stroke="rgba(244,244,238,0.85)" stroke-width="12" stroke-linecap="round" fill="none">
+      <line x1="0" y1="0" x2="150" y2="-180"/>
+      <line x1="150" y1="-180" x2="360" y2="-240"/>
+      <line x1="360" y1="-240" x2="560" y2="-150"/>
+    </g>
+    <g fill="#FF5A1F">
+      <circle cx="360" cy="470" r="26"/>
+      <circle cx="510" cy="290" r="22" opacity="0.9"/>
+      <circle cx="720" cy="230" r="22" opacity="0.9"/>
+    </g>
+    <circle cx="920" cy="320" r="20" fill="none" stroke="#FF5A1F" stroke-width="10"/>
+    <!-- node lattice, upper-left -->
+    <g stroke="rgba(122,194,201,0.5)" stroke-width="4" fill="none">
+      <line x1="60" y1="90" x2="200" y2="150"/>
+      <line x1="200" y1="150" x2="140" y2="280"/>
+      <line x1="200" y1="150" x2="320" y2="110"/>
+    </g>
+    <g fill="rgba(122,194,201,0.9)">
+      <circle cx="60" cy="90" r="9"/>
+      <circle cx="200" cy="150" r="9"/>
+      <circle cx="140" cy="280" r="9"/>
+      <circle cx="320" cy="110" r="9"/>
+    </g>
+  </g>
+  <text x="80" y="180" fill="rgba(244,244,238,0.9)" font-family="ui-serif, Georgia, serif" font-size="120" font-weight="600" letter-spacing="-3">Athenyx</text>
+  <text x="80" y="920" fill="rgba(244,244,238,0.5)" font-family="ui-monospace, monospace" font-size="22" letter-spacing="3">ROBOTICS · SYSTEM</text>
+</svg>
