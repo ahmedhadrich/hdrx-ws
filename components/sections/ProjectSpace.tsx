@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container } from '@/components/ui/Container';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { Loader } from '@/components/ui/Loader';
 import { sectionHeads } from '@/content/copy';
 import { projects, type Project } from '@/content/projects';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
@@ -12,14 +13,22 @@ import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
 import { useTheme } from '@/lib/hooks/useTheme';
 import { EASE_OUT_SOFT } from '@/lib/utils/motion';
 
+function SceneLoader() {
+  return (
+    <div className="absolute inset-0 grid place-items-center bg-bg-raised">
+      <Loader label="Loading 3D project space" />
+    </div>
+  );
+}
+
 const ProjectScene = dynamic(
   () => import('@/components/three/ProjectScene').then((m) => m.ProjectScene),
-  { ssr: false }
+  { ssr: false, loading: () => <SceneLoader /> }
 );
 
 const FallbackScene = dynamic(
   () => import('@/components/three/FallbackScene').then((m) => m.FallbackScene),
-  { ssr: false }
+  { ssr: false, loading: () => <SceneLoader /> }
 );
 
 function detectWebGL(): boolean {
