@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/lib/hooks/useTheme';
 import { IntroProvider } from '@/lib/hooks/useIntro';
 import { AmbientBackground } from '@/components/layout/AmbientBackground';
 import { IntroLoader } from '@/components/layout/IntroLoader';
+import { RouteLoader } from '@/components/layout/RouteLoader';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { MainWrapper } from '@/components/layout/MainWrapper';
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <IntroProvider>
           <ThemeProvider>
             <AmbientBackground />
+            <RouteLoader />
             <IntroLoader />
             <Nav />
             <MainWrapper id="main">{children}</MainWrapper>
