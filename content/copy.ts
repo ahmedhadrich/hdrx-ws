@@ -1,5 +1,5 @@
 export const site = {
-  name: 'Ahmed Hadrich',
+  name: 'HDRX',
   shortName: 'HDRX',
   email: 'hadrichahmed01@gmail.com',
   social: [

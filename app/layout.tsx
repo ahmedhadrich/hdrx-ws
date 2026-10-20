@@ -26,12 +26,12 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Ahmed Hadrich — Builder, Engineer, Designer',
+  title: 'HDRX',
   description:
     'Independent engineer and designer making products, systems, and tools that feel inevitable.',
   metadataBase: new URL('https://hdrx.dev'),
   openGraph: {
-    title: 'Ahmed Hadrich — Builder, Engineer, Designer',
+    title: 'HDRX',
     description:
       'Independent engineer and designer making products, systems, and tools that feel inevitable.',
     type: 'website',
