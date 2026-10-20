@@ -9,7 +9,7 @@ import { Studio } from '@/components/three/Studio';
 import RoomScene, { CAM_LOOK, CAM_POS, PLINTH_TOP } from './room/RoomScene';
 import { parallax } from './room/parallax';
 import { setScreenVisible } from '@/components/three/screenVisibility';
-import { useScreenSettings } from './settings';
+import { useHour, useScreenSettings } from './settings';
 import { useTheme } from '@/lib/hooks/useTheme';
 
 // The 3D MacBook is the site's frame for good: it plays the intro, then stays, and the
@@ -74,8 +74,11 @@ export default function MacbookWorld(props: Props) {
   // The 3D display's glow follows the screen settings: same curve as the HTML screen's
   // dimming veil (opacity (1 - brightness) * 0.85), and much dimmer behind the dark glass
   const { theme } = useTheme();
-  const { brightness } = useScreenSettings();
+  const { brightness, accent } = useScreenSettings();
+  const hour = useHour();
   const backlight = (1 - (1 - brightness) * 0.85) * (theme === 'dark' ? 0.35 : 1);
+  // Anything that eases the room's look: Director renders at full rate for a moment after it changes
+  const wakeKey = `${theme}|${brightness}|${accent}|${hour}`;
   // Hidden until Director has posed the lid and camera: the model's very first frame
   // still has the GLB's default pose (lid open) and the room's resting camera.
   const [shown, setShown] = useState(false);
@@ -83,10 +86,10 @@ export default function MacbookWorld(props: Props) {
 
   const laptop = withRoom ? (
     <group position={[PLINTH_TOP.x, PLINTH_TOP.y + BASE_DROP * ROOM_SCALE, PLINTH_TOP.z]} scale={ROOM_SCALE}>
-      <Director {...props} scale={ROOM_SCALE} onPosed={onPosed} backlight={backlight} />
+      <Director {...props} scale={ROOM_SCALE} onPosed={onPosed} backlight={backlight} wakeKey={wakeKey} />
     </group>
   ) : (
-    <Director {...props} scale={1} onPosed={onPosed} backlight={backlight} />
+    <Director {...props} scale={1} onPosed={onPosed} backlight={backlight} wakeKey={wakeKey} />
   );
 
   return (
@@ -131,7 +134,7 @@ export default function MacbookWorld(props: Props) {
 type DirectorProps = Pick<
   Props,
   'phase' | 'zoom' | 'reducedMotion' | 'withRoom' | 'overlay' | 'onReady' | 'onIntroDone' | 'onZoomIn'
-> & { scale: number; onPosed: () => void; backlight: number };
+> & { scale: number; onPosed: () => void; backlight: number; wakeKey: string };
 
 function Director({
   phase,
@@ -145,6 +148,7 @@ function Director({
   scale,
   onPosed,
   backlight,
+  wakeKey,
 }: DirectorProps) {
   // Read per frame without re-rendering the scene
   const backlightRef = useRef(backlight);
@@ -152,6 +156,33 @@ function Director({
     backlightRef.current = backlight;
   }, [backlight]);
   const { camera, size, gl } = useThree();
+  const setFrameloop = useThree((st) => st.setFrameloop);
+  const invalidate = useThree((st) => st.invalidate);
+  // Until when (performance.now) the canvas must render every frame
+  const wakeUntil = useRef(0);
+  const idle = useRef(false);
+
+  // Zoomed in and settled, only a thin margin of room shows round the screen, yet rendering it
+  // at 60 fps also forced the screen's frosted-glass blur (which samples the canvas) to be
+  // recomputed every frame: the main cause of the sluggish carousel in Firefox. So the canvas
+  // then renders on demand, with a 4 fps heartbeat that keeps grain, clock and fades going.
+  // Reduced motion keeps the room's own 'demand' loop untouched.
+  useEffect(() => {
+    if (reducedMotion) return;
+    wakeUntil.current = performance.now() + 1800;
+    if (idle.current) {
+      idle.current = false;
+      setFrameloop('always');
+    }
+  }, [phase, zoom, wakeKey, reducedMotion, setFrameloop]);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const id = setInterval(() => {
+      if (idle.current) invalidate();
+    }, 250);
+    return () => clearInterval(id);
+  }, [reducedMotion, invalidate]);
   const [rig, setRig] = useState<MacbookRig | null>(null);
   const group = useRef<THREE.Group>(null);
   const posed = useRef(false);
@@ -242,6 +273,20 @@ function Director({
     // The room bakes its shadows once; re-bake while the lid moves
     if (withRoom && open !== s.lastOpen) gl.shadowMap.needsUpdate = true;
     s.lastOpen = open;
+
+    // Settled zoomed in (camera, lid and any recent setting change done): drop to on-demand
+    const settled =
+      !reducedMotion &&
+      phase === 'open' &&
+      zoom === 'in' &&
+      s.zoom === 'in' &&
+      now - s.zoomStart >= T.zoom &&
+      now - s.lidStart >= T.lidZoom &&
+      performance.now() > wakeUntil.current;
+    if (settled && !idle.current) {
+      idle.current = true;
+      setFrameloop('demand');
+    }
 
     // ---- camera ----
     if (phase === 'loading' || phase === 'closed') {
