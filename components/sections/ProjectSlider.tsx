@@ -250,6 +250,8 @@ function SliderCard({
             <img
               src={project.thumbnail}
               alt=""
+              width={640}
+              height={400}
               className="w-full h-full object-cover"
               loading="lazy"
             />

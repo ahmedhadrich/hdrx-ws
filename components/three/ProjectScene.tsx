@@ -1,10 +1,14 @@
 'use client';
 
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import { Environment, RoundedBox } from '@react-three/drei';
+import { RoundedBox } from '@react-three/drei';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { projects, type Project } from '@/content/projects';
+import {
+  DEFAULT_CAMERA_TUNING,
+  type CameraTuning,
+} from '@/components/three/cameraTuning';
 
 // ---------------------------------------------------------------------------
 // CRT shader — applied per-panel on hover/focus (the one allowed retro moment)
@@ -101,6 +105,7 @@ interface SceneProps {
   entered: boolean;
   focusedIndex: number;
   theme: 'dark' | 'light';
+  cameraTuning?: CameraTuning;
 }
 
 // Shared arc layout computation — used by both CameraDrift and Panel
@@ -128,13 +133,17 @@ export function ProjectScene({
   entered,
   focusedIndex,
   theme,
+  cameraTuning = DEFAULT_CAMERA_TUNING,
 }: SceneProps) {
   const panelLayouts = useMemo(() => computePanelLayouts(projects.length), []);
   const focusedLayout = focusedIndex >= 0 ? panelLayouts[focusedIndex] : null;
 
   return (
     <Canvas
-      camera={{ position: [0, 0.2, 6.5], fov: 38 }}
+      camera={{
+        position: [cameraTuning.ambientX, cameraTuning.ambientY, cameraTuning.ambientZ],
+        fov: cameraTuning.fov,
+      }}
       dpr={[1, typeof window !== 'undefined' ? Math.min(window.devicePixelRatio, 2) : 2]}
       gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
       style={{ width: '100%', height: '100%' }}
@@ -144,9 +153,11 @@ export function ProjectScene({
         <ambientLight intensity={theme === 'dark' ? 0.35 : 0.6} />
         <directionalLight position={[3, 4, 5]} intensity={1.1} color="#FFE7D6" />
         <directionalLight position={[-4, -2, 3]} intensity={0.4} color="#7AC2C9" />
-        <Environment preset={theme === 'dark' ? 'city' : 'apartment'} />
-
-        <CameraDrift entered={entered} focusedLayout={focusedLayout} />
+        <CameraDrift
+          entered={entered}
+          focusedLayout={focusedLayout}
+          tuning={cameraTuning}
+        />
 
         <group>
           {projects.map((p, i) => (
@@ -179,13 +190,19 @@ interface PanelLayout {
 interface CameraDriftProps {
   entered: boolean;
   focusedLayout: PanelLayout | null;
+  tuning: CameraTuning;
 }
 
-function CameraDrift({ entered, focusedLayout }: CameraDriftProps) {
+function CameraDrift({ entered, focusedLayout, tuning }: CameraDriftProps) {
   // Persistent lerped look-at target — prevents camera snap when switching panels
   const lookAt = useRef(new THREE.Vector3(0, 0, 0));
 
   useFrame((state) => {
+    if (state.camera instanceof THREE.PerspectiveCamera && state.camera.fov !== tuning.fov) {
+      state.camera.fov = tuning.fov;
+      state.camera.updateProjectionMatrix();
+    }
+
     const t = state.clock.getElapsedTime();
     let targetX: number, targetY: number, targetZ: number;
     let lookX: number, lookY: number, lookZ: number;
@@ -193,34 +210,33 @@ function CameraDrift({ entered, focusedLayout }: CameraDriftProps) {
     if (focusedLayout) {
       const { x, y, z, angle } = focusedLayout;
       // Panel face normal: local +Z maps to world (-sin(angle), 0, cos(angle))
-      // Position camera 2 units in front of the panel face
-      const dist = 2.0;
+      const dist = tuning.focusDistance;
       targetX = x + -Math.sin(angle) * dist;
-      targetY = y + 0.1;
+      targetY = y + tuning.focusYOffset;
       targetZ = z + Math.cos(angle) * dist;
       lookX = x;
       lookY = y;
       lookZ = z;
     } else if (entered) {
       // Gentle drift while in the space with no panel focused
-      targetX = Math.sin(t * 0.11) * 0.45;
-      targetY = 0.2 + Math.sin(t * 0.17) * 0.07;
-      targetZ = 3.8;
-      lookX = 0;
-      lookY = 0;
-      lookZ = 0;
+      targetX = tuning.enteredX + Math.sin(t * 0.11) * tuning.driftX;
+      targetY = tuning.enteredY + Math.sin(t * 0.17) * tuning.driftY;
+      targetZ = tuning.enteredZ;
+      lookX = tuning.lookAtX;
+      lookY = tuning.lookAtY;
+      lookZ = tuning.lookAtZ;
     } else {
       // Ambient (not yet entered) — pulled back
-      targetX = Math.sin(t * 0.11) * 0.22;
-      targetY = 0.2 + Math.sin(t * 0.17) * 0.07;
-      targetZ = 6.5;
-      lookX = 0;
-      lookY = 0;
-      lookZ = 0;
+      targetX = tuning.ambientX + Math.sin(t * 0.11) * (tuning.driftX * 0.5);
+      targetY = tuning.ambientY + Math.sin(t * 0.17) * tuning.driftY;
+      targetZ = tuning.ambientZ;
+      lookX = tuning.lookAtX;
+      lookY = tuning.lookAtY;
+      lookZ = tuning.lookAtZ;
     }
 
     // Faster lerp when focused so the zoom feels responsive
-    const lerpFactor = focusedLayout ? 0.06 : 0.035;
+    const lerpFactor = focusedLayout ? tuning.focusLerp : tuning.idleLerp;
 
     state.camera.position.x += (targetX - state.camera.position.x) * lerpFactor;
     state.camera.position.y += (targetY - state.camera.position.y) * lerpFactor;
@@ -340,7 +356,7 @@ function Panel({
 
     if (meshRef.current.material) {
       const mat = meshRef.current.material as THREE.MeshPhysicalMaterial;
-      const targetOpacity = entered ? 1.0 : 0.55;
+      const targetOpacity = entered ? 1.0 : 0.0;
       mat.opacity += (targetOpacity - mat.opacity) * 0.06;
     }
   });
@@ -406,7 +422,7 @@ function Panel({
           thickness={0.3}
           ior={1.4}
           transparent
-          opacity={0.55}
+          opacity={0.0}
         />
       </RoundedBox>
 

@@ -224,6 +224,8 @@ function MediaCard({ project }: { project: Project }) {
       <img
         src={project.thumbnail}
         alt={project.title}
+        width={640}
+        height={400}
         className="w-full h-full object-contain p-10 md:p-16"
       />
 

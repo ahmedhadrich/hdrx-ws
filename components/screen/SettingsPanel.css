@@ -1,0 +1,123 @@
+/* ---------- Display / Sound modules, after macOS Control Center ----------
+   Titled glass card; a 6px track between a small and a large icon; white fill.
+   Sound adds a white pill thumb. The native range covers the bar, invisible. */
+.settings__module {
+  --track-h: 6px;
+  --knob-w: 30px;
+  --knob-h: 22px;
+  padding: 12px 16px 14px;
+  border-radius: 22px;
+  background: var(--module-bg);
+  backdrop-filter: blur(30px) saturate(180%);
+  box-shadow:
+    inset 0 0 0 1px var(--module-edge),
+    inset 0 1px 0 var(--module-highlight),
+    0 8px 24px -12px rgba(0, 0, 0, 0.45);
+}
+
+.settings {
+  --module-bg: rgba(255, 255, 255, 0.1);
+  --module-edge: rgba(255, 255, 255, 0.16);
+  --module-highlight: rgba(255, 255, 255, 0.28);
+  --module-ink: #ffffff;
+  --module-track: rgba(255, 255, 255, 0.22);
+  --module-fill: #ffffff;
+}
+
+[data-theme='light'] .settings {
+  --module-bg: rgba(255, 255, 255, 0.55);
+  --module-edge: rgba(255, 255, 255, 0.85);
+  --module-highlight: rgba(255, 255, 255, 0.95);
+  --module-ink: #1d1d1f;
+  --module-track: rgba(0, 0, 0, 0.12);
+  /* A white fill vanishes on the light glass; dark ink shows the level, the knob stays white */
+  --module-fill: #1d1d1f;
+}
+
+.settings__module-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: var(--module-ink);
+}
+
+.settings__module-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.settings__chevron { width: 8px; height: 13px; opacity: 0.55; }
+
+.settings__control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--module-ink);
+}
+
+.settings__end { flex: none; display: grid; place-items: center; }
+.settings__end svg { display: block; }
+.settings__end--start svg { width: 16px; height: 16px; }
+.settings__end--end svg { width: 21px; height: 21px; }
+
+.settings__bar {
+  position: relative;
+  flex: 1;
+  height: var(--knob-h);
+}
+
+/* Track */
+.settings__bar::before,
+.settings__bar::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: var(--track-h);
+  border-radius: 999px;
+  translate: 0 -50%;
+  pointer-events: none;
+}
+
+.settings__bar::before { right: 0; background: var(--module-track); }
+
+/* Fill: to the value (Display), or to the thumb's centre (Sound) */
+.settings__bar::after {
+  width: calc(100% * var(--frac));
+  background: var(--module-fill);
+}
+
+.settings__bar[data-knob]::after {
+  width: calc((100% - var(--knob-w)) * var(--frac) + var(--knob-w) / 2);
+}
+
+[data-theme='light'] .settings__bar::after { box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.08); }
+
+.settings__knob {
+  position: absolute;
+  top: 50%;
+  left: calc((100% - var(--knob-w)) * var(--frac));
+  width: var(--knob-w);
+  height: var(--knob-h);
+  border-radius: 999px;
+  translate: 0 -50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  pointer-events: none;
+}
+
+.settings__bar input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.settings__bar:focus-within::before { outline: 2px solid var(--accent-signal); outline-offset: 4px; }

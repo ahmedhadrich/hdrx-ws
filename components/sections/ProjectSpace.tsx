@@ -8,6 +8,10 @@ import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
 import { useTheme } from '@/lib/hooks/useTheme';
 import { EASE_OUT_SOFT } from '@/lib/utils/motion';
+import {
+  DEFAULT_CAMERA_TUNING,
+  type CameraTuning,
+} from '@/components/three/cameraTuning';
 
 const ProjectScene = dynamic(
   () => import('@/components/three/ProjectScene').then((m) => m.ProjectScene),
@@ -43,10 +47,38 @@ export function ProjectSpace() {
   const [entered, setEntered] = useState(false);
   const [selected, setSelected] = useState<Project | null>(null);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [cameraTuning, setCameraTuning] = useState<CameraTuning>(DEFAULT_CAMERA_TUNING);
+  const [cameraControlsEnabled, setCameraControlsEnabled] = useState(false);
 
   useEffect(() => {
     setWebgl(detectWebGL());
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setCameraControlsEnabled(
+      process.env.NODE_ENV === 'development' || params.has('camera-debug')
+    );
+
+    try {
+      const saved = window.localStorage.getItem('hdrx.camera-tuning.v1');
+      if (!saved) return;
+      setCameraTuning({
+        ...DEFAULT_CAMERA_TUNING,
+        ...(JSON.parse(saved) as Partial<CameraTuning>),
+      });
+    } catch {
+      // Keep defaults if stored tuning is absent or malformed.
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('hdrx.camera-tuning.v1', JSON.stringify(cameraTuning));
+    } catch {
+      // Ignore storage failures; controls should still remain usable.
+    }
+  }, [cameraTuning]);
 
   // Body scroll lock while in the space
   useEffect(() => {
@@ -63,12 +95,39 @@ export function ProjectSpace() {
     }
   }, [focusedIndex]);
 
+  // Global Escape handler while in the space
+  useEffect(() => {
+    if (!entered) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null;
+      const insideCameraControls = target?.closest('[data-camera-controls]');
+
+      if (e.key === 'Escape') handleExit();
+      if (insideCameraControls) return;
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setFocusedIndex((prev) =>
+          Math.min(prev === -1 ? 0 : prev + 1, projects.length - 1)
+        );
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setFocusedIndex((prev) => Math.max(prev - 1, 0));
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [entered]);
+
   // Wheel navigation while entered
   useEffect(() => {
     if (!entered) return;
     const lastTime = { current: 0 };
 
     function handleWheel(e: WheelEvent) {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('[data-camera-controls]')) return;
+
       e.preventDefault();
       const now = Date.now();
       if (now - lastTime.current < 350) return; // throttle
@@ -106,19 +165,6 @@ export function ProjectSpace() {
     if (!entered && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
       handleEnter();
-    }
-    if (entered && e.key === 'Escape') {
-      handleExit();
-    }
-    if (entered && e.key === 'ArrowRight') {
-      e.preventDefault();
-      setFocusedIndex((prev) =>
-        Math.min(prev === -1 ? 0 : prev + 1, projects.length - 1)
-      );
-    }
-    if (entered && e.key === 'ArrowLeft') {
-      e.preventDefault();
-      setFocusedIndex((prev) => Math.max(prev - 1, 0));
     }
   }
 
@@ -165,6 +211,15 @@ export function ProjectSpace() {
             entered={entered}
             focusedIndex={focusedIndex}
             theme={theme}
+            cameraTuning={cameraTuning}
+          />
+        )}
+
+        {entered && !useFallback && cameraControlsEnabled && (
+          <CameraControlPanel
+            tuning={cameraTuning}
+            onChange={setCameraTuning}
+            mode={focusedIndex >= 0 ? 'focused' : entered ? 'entered' : 'ambient'}
           />
         )}
 
@@ -276,6 +331,149 @@ export function ProjectSpace() {
         ))}
       </ul>
     </section>
+  );
+}
+
+interface CameraControlPanelProps {
+  tuning: CameraTuning;
+  onChange: (next: CameraTuning) => void;
+  mode: 'ambient' | 'entered' | 'focused';
+}
+
+const CAMERA_CONTROL_GROUPS: Array<{
+  title: string;
+  controls: Array<{
+    key: keyof CameraTuning;
+    label: string;
+    min: number;
+    max: number;
+    step: number;
+  }>;
+}> = [
+  {
+    title: 'Lens',
+    controls: [{ key: 'fov', label: 'FOV', min: 20, max: 70, step: 0.5 }],
+  },
+  {
+    title: 'Entered camera',
+    controls: [
+      { key: 'enteredX', label: 'X', min: -3, max: 3, step: 0.01 },
+      { key: 'enteredY', label: 'Y', min: -2, max: 2, step: 0.01 },
+      { key: 'enteredZ', label: 'Z', min: 1.5, max: 8, step: 0.01 },
+    ],
+  },
+  {
+    title: 'Look target',
+    controls: [
+      { key: 'lookAtX', label: 'X', min: -3, max: 3, step: 0.01 },
+      { key: 'lookAtY', label: 'Y', min: -2, max: 2, step: 0.01 },
+      { key: 'lookAtZ', label: 'Z', min: -3, max: 3, step: 0.01 },
+    ],
+  },
+  {
+    title: 'Motion',
+    controls: [
+      { key: 'driftX', label: 'Drift X', min: 0, max: 1.5, step: 0.01 },
+      { key: 'driftY', label: 'Drift Y', min: 0, max: 0.5, step: 0.01 },
+      { key: 'idleLerp', label: 'Idle lerp', min: 0.005, max: 0.2, step: 0.001 },
+    ],
+  },
+  {
+    title: 'Focused camera',
+    controls: [
+      { key: 'focusDistance', label: 'Distance', min: 0.8, max: 5, step: 0.01 },
+      { key: 'focusYOffset', label: 'Y offset', min: -1, max: 1, step: 0.01 },
+      { key: 'focusLerp', label: 'Focus lerp', min: 0.005, max: 0.2, step: 0.001 },
+    ],
+  },
+  {
+    title: 'Ambient camera',
+    controls: [
+      { key: 'ambientX', label: 'X', min: -3, max: 3, step: 0.01 },
+      { key: 'ambientY', label: 'Y', min: -2, max: 2, step: 0.01 },
+      { key: 'ambientZ', label: 'Z', min: 2, max: 10, step: 0.01 },
+    ],
+  },
+];
+
+function CameraControlPanel({ tuning, onChange, mode }: CameraControlPanelProps) {
+  const [copied, setCopied] = useState(false);
+
+  async function copyValues() {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(tuning, null, 2));
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1200);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <aside
+      data-camera-controls
+      className="absolute top-8 right-8 z-50 w-[280px] max-h-[calc(100vh-4rem)] overflow-y-auto rounded-2xl border border-rule bg-bg-raised/90 p-4 text-ink-primary shadow-2xl backdrop-blur"
+    >
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-muted">
+            Camera tuning
+          </p>
+          <p className="mt-1 text-sm text-ink-secondary">
+            Current mode: <span className="text-ink-primary">{mode}</span>
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => onChange(DEFAULT_CAMERA_TUNING)}
+          className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted transition-colors hover:text-ink-primary"
+        >
+          Reset
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        {CAMERA_CONTROL_GROUPS.map((group) => (
+          <fieldset key={group.title} className="space-y-2">
+            <legend className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-muted">
+              {group.title}
+            </legend>
+            {group.controls.map((control) => (
+              <label key={control.key} className="block">
+                <div className="mb-1 flex items-center justify-between gap-3 text-xs">
+                  <span className="text-ink-secondary">{control.label}</span>
+                  <span className="font-mono text-[11px] text-ink-primary">
+                    {tuning[control.key].toFixed(control.step < 0.01 ? 3 : 2)}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={control.min}
+                  max={control.max}
+                  step={control.step}
+                  value={tuning[control.key]}
+                  onChange={(e) =>
+                    onChange({
+                      ...tuning,
+                      [control.key]: Number(e.currentTarget.value),
+                    })
+                  }
+                  className="w-full accent-[var(--accent-signal)]"
+                />
+              </label>
+            ))}
+          </fieldset>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={copyValues}
+        className="mt-4 w-full rounded-full border border-rule px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted transition-colors hover:border-ink-primary hover:text-ink-primary"
+      >
+        {copied ? 'Copied values' : 'Copy values'}
+      </button>
+    </aside>
   );
 }
 

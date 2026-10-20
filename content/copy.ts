@@ -85,3 +85,38 @@ export const footer = {
   cta: 'Available for product, PM, and creative-technology work — full-time roles, embedded gigs, or one-off scopes.',
   ctaLink: 'Start a conversation',
 } as const;
+
+// Single-screen home: everything lives on one glass MacBook display.
+export const screen = {
+  brand: 'HDRX',
+  panels: [
+    { id: 'contact', label: 'Contact' },
+  ],
+  location: { label: 'Germany', timeZone: 'Europe/Berlin' },
+  emailLabel: 'Email',
+  batteryLabel: 'Battery',
+  settingsLabel: 'Settings',
+  contactLabel: 'Contact',
+  settings: {
+    title: 'Control Centre',
+    darkMode: 'Dark mode',
+    on: 'On',
+    off: 'Off',
+    accent: 'Accent colour',
+    accents: { signal: 'Signal', shore: 'Shore', bone: 'Bone' },
+    display: 'Display',
+    sound: 'Sound',
+  },
+  bootLabel: 'Booting',
+  closeLabel: 'Close',
+  zoomOutLabel: 'Zoom out',
+  zoomInLabel: 'Zoom in',
+  prevLabel: 'Previous project',
+  nextLabel: 'Next project',
+  openLabel: 'Open case',
+  visitLabel: 'Visit site',
+  copyLabel: 'Copy',
+  copiedLabel: 'Copied',
+} as const;
+
+export type ScreenPanelId = (typeof screen.panels)[number]['id'];

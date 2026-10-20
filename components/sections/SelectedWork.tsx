@@ -53,6 +53,8 @@ function ProjectCard({ project }: { project: Project }) {
         <img
           src={project.thumbnail}
           alt=""
+          width={640}
+          height={400}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out-soft group-hover:scale-[1.03]"
           loading="lazy"
         />

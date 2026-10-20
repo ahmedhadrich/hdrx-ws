@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from './ThemeToggle';
 import { site } from '@/content/copy';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
+import { EASE_OUT_SOFT, EASE_GLASS } from '@/lib/utils/motion';
 
 // ─── Section ticker config ─────────────────────────────────────────────────────
 
@@ -28,8 +29,8 @@ const NAV_LINKS = [
 
 const tickerVariants = {
   enter: { y: '100%', opacity: 0 },
-  visible: { y: '0%', opacity: 1, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] } },
-  exit: { y: '-100%', opacity: 0, transition: { duration: 0.24, ease: [0.65, 0, 0.35, 1] } },
+  visible: { y: '0%', opacity: 1, transition: { duration: 0.32, ease: EASE_OUT_SOFT } },
+  exit: { y: '-100%', opacity: 0, transition: { duration: 0.24, ease: EASE_GLASS } },
 };
 
 const menuVariants = {
@@ -37,7 +38,7 @@ const menuVariants = {
     opacity: 0,
     y: 16,
     scale: 0.97,
-    transition: { duration: 0.22, ease: [0.65, 0, 0.35, 1] },
+    transition: { duration: 0.22, ease: EASE_GLASS },
   },
   open: {
     opacity: 1,
@@ -45,7 +46,7 @@ const menuVariants = {
     scale: 1,
     transition: {
       duration: 0.36,
-      ease: [0.22, 1, 0.36, 1],
+      ease: EASE_OUT_SOFT,
       staggerChildren: 0.06,
       delayChildren: 0.08,
     },
@@ -54,7 +55,7 @@ const menuVariants = {
 
 const menuItemVariants = {
   closed: { opacity: 0, y: 12 },
-  open: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+  open: { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE_OUT_SOFT } },
 };
 
 const menuReducedVariants = {
@@ -91,19 +92,21 @@ export function Nav() {
   const reduced = useReducedMotion();
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [sectionLabel, setSectionLabel] = useState<string>('');
+  const [intersectedLabel, setIntersectedLabel] = useState<string>('');
   const menuRef = useRef<HTMLDivElement>(null);
   const burgerRef = useRef<HTMLButtonElement>(null);
+
+  // On sub-pages, derive label from pathname during render (not in an effect).
+  const pathLabel = !isHome
+    ? (pathname.split('/').filter(Boolean).pop() ?? '').toUpperCase()
+    : '';
+
+  const sectionLabel = isHome ? intersectedLabel : pathLabel;
 
   // ─── Section ticker via IntersectionObserver ─────────────────────────────
 
   useEffect(() => {
-    if (!isHome) {
-      // On sub-pages, derive label from pathname
-      const slug = pathname.split('/').filter(Boolean).pop() ?? '';
-      setSectionLabel(slug.toUpperCase());
-      return;
-    }
+    if (!isHome) return;
 
     const observers: IntersectionObserver[] = [];
 
@@ -114,7 +117,7 @@ export function Nav() {
       const obs = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
-            setSectionLabel(label.toUpperCase());
+            setIntersectedLabel(label.toUpperCase());
           }
         },
         { threshold: 0.4 }
@@ -124,7 +127,7 @@ export function Nav() {
     });
 
     return () => observers.forEach((obs) => obs.disconnect());
-  }, [isHome, pathname]);
+  }, [isHome]);
 
   // ─── Close menu on outside click ─────────────────────────────────────────
 
@@ -286,7 +289,7 @@ export function Nav() {
                   initial={reduced ? { opacity: 0 } : { opacity: 0, rotate: -45, scale: 0.8 }}
                   animate={reduced ? { opacity: 1 } : { opacity: 1, rotate: 0, scale: 1 }}
                   exit={reduced ? { opacity: 0 } : { opacity: 0, rotate: 45, scale: 0.8 }}
-                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.22, ease: EASE_OUT_SOFT }}
                 >
                   <CloseIcon />
                 </motion.span>
@@ -296,7 +299,7 @@ export function Nav() {
                   initial={reduced ? { opacity: 0 } : { opacity: 0, rotate: 45, scale: 0.8 }}
                   animate={reduced ? { opacity: 1 } : { opacity: 1, rotate: 0, scale: 1 }}
                   exit={reduced ? { opacity: 0 } : { opacity: 0, rotate: -45, scale: 0.8 }}
-                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.22, ease: EASE_OUT_SOFT }}
                 >
                   <BurgerIcon />
                 </motion.span>
@@ -331,7 +334,7 @@ export function Nav() {
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -8 }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.28, ease: EASE_OUT_SOFT }}
               className="nav-pill flex items-center overflow-hidden"
               style={{
                 height: '50px',

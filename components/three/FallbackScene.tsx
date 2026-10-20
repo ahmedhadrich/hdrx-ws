@@ -141,7 +141,7 @@ function FallbackPanel({
   // Extra Z push for the focused panel so it reads as "zoomed"
   const tzOffset = focused ? 100 : lifted ? 70 : 0;
   const scale = focused ? 1.1 : lifted ? 1.05 : entered ? 1.0 : 0.92;
-  const opacity = dimmed ? 0.45 : entered ? 1 : 0.45;
+  const opacity = dimmed ? 0.45 : entered ? 1 : 0;
 
   return (
     <button
@@ -189,6 +189,8 @@ function FallbackPanel({
       <img
         src={project.thumbnail}
         alt=""
+        width={640}
+        height={400}
         className="absolute inset-0 w-full h-full object-cover"
         loading="lazy"
       />
