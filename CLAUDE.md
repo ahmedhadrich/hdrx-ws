@@ -42,7 +42,9 @@ If a design decision doesn't pull from this list, reject it.
 > non-scrolling screen: a glass MacBook Pro whose display carries everything (HUD,
 > 3D work carousel, Capabilities / About / Contact as glass panels). See
 > `.claude/notes/single-screen-home.md`. The list below still describes the content
-> that must be reachable, and the old section components remain for other routes.
+> that must be reachable. The old scrolling-site section components (Hero, SelectedWork,
+> ProjectSpace, Capabilities, About, Contact, ProjectSlider, the old ProjectScene/FallbackScene)
+> were deleted on 2026-10-20 as unreachable dead code; they're in git history at 98bf68e.
 
 
 The MVP ships these sections in this order:
