@@ -26,10 +26,10 @@
 }
 
 [data-theme='light'] .mbp__head.menubar {
-  --menubar-bg-solid: #f2f2f2;
+  --menubar-bg-solid: #efe7da;
   --menubar-ink: rgba(0, 0, 0, 0.85);
   --menubar-hover: rgba(0, 0, 0, 0.1);
-  background: rgba(246, 246, 246, 0.72);
+  background: rgba(242, 235, 223, 0.72);
 }
 
 /* Items carry their own padding, like NSStatusItems, so there's no group gap */
