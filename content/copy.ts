@@ -9,76 +9,11 @@ export const site = {
   ],
 } as const;
 
-export const hero = {
-  eyebrow: 'PM · Engineer · Builder',
-  headline: ['Ideas scoped', 'into products', 'that ship.'],
-  positioning: 'Turning vague briefs into clear scopes.',
-  ctaPrimary: { label: 'See selected work', href: '#work' },
-  ctaSecondary: { label: 'Let’s talk', href: '#contact' },
-  scrollHint: 'Scroll',
-} as const;
-
+// Heading of the Contact panel on the home screen (components/screen/InfoPanel)
 export const sectionHeads = {
-  work: {
-    eyebrow: 'Selected work',
-    title: 'Things I have led, designed, and built.',
-    sub: 'Five projects across energy platforms, web launches, and creative tech — each a story about turning a messy brief into something real.',
-  },
-  space: {
-    eyebrow: 'Project space',
-    title: 'Step into the work.',
-    sub: 'A spatial gallery — projects as floating glass panels in a calm scene. Hover, focus, or drag to explore.',
-  },
-  capabilities: {
-    eyebrow: 'Capabilities',
-    title: 'How I show up.',
-    sub: 'Half PM, half engineer, fluent in design — comfortable on either side of the brief.',
-  },
-  about: {
-    eyebrow: 'About',
-    title: 'Energy brain, design eye, builder hands.',
-  },
   contact: {
-    eyebrow: 'Contact',
     title: 'Got something worth scoping? Let’s talk.',
   },
-} as const;
-
-export const capabilities = {
-  'Product & Delivery': [
-    'Roadmaps, scoping, and shaping',
-    'Backlog and release planning',
-    'Stakeholder alignment',
-    'Cross-functional coordination',
-    'Vendor and dev-team handoff',
-  ],
-  'Creative Tech': [
-    'Front-end engineering — React, Next.js, TypeScript',
-    'Interactive 3D and WebGL experiments',
-    'Visual prototyping in code',
-    'Design systems and component libraries',
-    'Motion and interaction design',
-  ],
-  Domain: [
-    'Energy and sustainability fluency',
-    'Engineering-to-business translation',
-    'UX thinking for technical products',
-    'Design–dev–stakeholder communication',
-    'Mentoring and pairing',
-  ],
-} as const;
-
-export const about = {
-  paragraphs: [
-    'I came up through energy engineering, learned to design along the way, and now spend most days writing code, scoping work, or making sure the right thing gets built. My role usually sits between the people who imagine a product and the people who ship it.',
-    'Right now I am most curious about creative tech — interactive 3D, real-time visuals, the kinds of interfaces that feel less like dashboards and more like places. The portfolio is a sandbox for that. Open to product, PM, and creative-technology roles where the work matters.',
-  ],
-} as const;
-
-export const contact = {
-  closer:
-    'Currently open to product, PM, and creative-technology roles — and to interesting collaborations on the side.',
-  emailLabel: 'Mail me',
 } as const;
 
 export const footer = {
@@ -92,8 +27,8 @@ export const screen = {
   panels: [
     { id: 'contact', label: 'Contact' },
   ],
-  location: { label: 'Germany', timeZone: 'Europe/Berlin' },
-  emailLabel: 'Email',
+  // Menu bar clock (Germany)
+  location: { timeZone: 'Europe/Berlin' },
   batteryLabel: 'Battery',
   settingsLabel: 'Settings',
   contactLabel: 'Contact',
@@ -103,9 +38,20 @@ export const screen = {
     on: 'On',
     off: 'Off',
     accent: 'Accent colour',
-    accents: { signal: 'Signal', shore: 'Shore', bone: 'Bone' },
+    accents: { signal: 'Sage', shore: 'Terracotta', bone: 'Bone' },
     display: 'Display',
     sound: 'Sound',
+    timeOfDay: 'Time of day',
+    // Quick jumps for checking the room's lighting; hours live in SettingsPanel (TIME_PRESETS)
+    presets: {
+      dawn: 'Dawn',
+      morning: 'Morning',
+      noon: 'Noon',
+      golden: 'Golden hour',
+      dusk: 'Dusk',
+      night: 'Night',
+    },
+    auto: 'Auto',
   },
   bootLabel: 'Booting',
   closeLabel: 'Close',

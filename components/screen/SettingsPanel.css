@@ -25,7 +25,7 @@
 }
 
 [data-theme='light'] .settings {
-  --module-bg: rgba(255, 255, 255, 0.55);
+  --module-bg: rgba(246, 240, 229, 0.6);
   --module-edge: rgba(255, 255, 255, 0.85);
   --module-highlight: rgba(255, 255, 255, 0.95);
   --module-ink: #1d1d1f;
