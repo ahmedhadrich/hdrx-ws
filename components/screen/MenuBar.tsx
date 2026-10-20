@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { screen } from '@/content/copy';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 import { SettingsPanel } from './SettingsPanel';
+import './MenuBar.css';
 
 // Same H as the backlit logo on the lid
 export const H_PATH = 'M22 10h16v32h24V10h16v80H62V56H38v34H22z';
