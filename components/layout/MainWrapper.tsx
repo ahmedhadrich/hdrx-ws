@@ -17,7 +17,7 @@ export function MainWrapper({ children, id }: MainWrapperProps) {
   const { introComplete } = useIntro();
   const reducedMotion = useReducedMotion();
 
-  // With reduced-motion or if intro was already skipped: render immediately
+  // Reduced motion: no entrance, render immediately
   if (reducedMotion) {
     return (
       <main id={id} className="relative z-10">

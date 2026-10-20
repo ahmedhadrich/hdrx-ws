@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { isScreenVisible, onScreenVisibility } from '@/components/three/screenVisibility';
 
 // ---------------------------------------------------------------------------
 // Glass display shader — the screen's surface, drawn over the HUD.
@@ -177,16 +178,26 @@ export function GlassShader({ dark, reducedMotion }: Props) {
       if (!document.hidden) draw((performance.now() - start) / 1000);
       raf = requestAnimationFrame(loop);
     };
+    // Only loop while the screen can be seen: in 3D mode the overlay is hidden during the
+    // intro and while zoomed out, and a full-display shader at 60 fps is wasted there.
+    // The clock keeps running from `start`, so the sweep and band resume in phase.
+    const run = (visible: boolean) => {
+      cancelAnimationFrame(raf);
+      raf = visible ? requestAnimationFrame(loop) : 0;
+    };
 
+    let stopListening = () => {};
     if (reducedMotion) {
       draw(0);
     } else {
       window.addEventListener('pointermove', onMove, { passive: true });
-      raf = requestAnimationFrame(loop);
+      run(isScreenVisible());
+      stopListening = onScreenVisibility(run);
     }
 
     return () => {
       cancelAnimationFrame(raf);
+      stopListening();
       ro.disconnect();
       window.removeEventListener('pointermove', onMove);
       gl.deleteProgram(prog);
