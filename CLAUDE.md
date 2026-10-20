@@ -38,6 +38,15 @@ If a design decision doesn't pull from this list, reject it.
 
 ## 3. Section Architecture
 
+> **Superseded for the home page (2026-10-20).** The home route `/` is now a single,
+> non-scrolling screen: a glass MacBook Pro whose display carries everything (HUD,
+> 3D work carousel, Capabilities / About / Contact as glass panels). See
+> `.claude/notes/single-screen-home.md`. The list below still describes the content
+> that must be reachable. The old scrolling-site section components (Hero, SelectedWork,
+> ProjectSpace, Capabilities, About, Contact, ProjectSlider, the old ProjectScene/FallbackScene)
+> were deleted on 2026-10-20 as unreachable dead code; they're in git history at 98bf68e.
+
+
 The MVP ships these sections in this order:
 
 1. **Hero** — cinematic first impression. Strong heading, positioning line, primary CTA, atmospheric depth. Inspired by Mad Creative Agency confidence + Fluid Glass polish.

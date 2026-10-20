@@ -10,3 +10,7 @@ dist/
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+
+# Raw Sketchfab download (source GLB + textures): licence forbids redistributing the
+# model on its own. The site uses the compressed public/models/macbook.glb instead.
+public/models/macbook/

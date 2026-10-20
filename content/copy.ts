@@ -3,27 +3,26 @@ export const site = {
   shortName: 'HDRX',
   email: 'hadrichahmed01@gmail.com',
   social: [
-    { label: 'GitHub', href: 'https://github.com/' },
-    { label: 'LinkedIn', href: 'https://linkedin.com/' },
-    { label: 'X', href: 'https://x.com/' },
+    { label: 'GitHub', href: 'https://github.com/ahmedhadrich' },
+    { label: 'LinkedIn', href: 'https://linkedin.com/in/ahmed-hadrich' },
+    { label: 'Email', href: 'mailto:hadrichahmed01@gmail.com' },
   ],
 } as const;
 
 export const hero = {
-  eyebrow: 'Builder · Engineer · Designer',
-  headline: ['Building thoughtful', 'software with', 'cinematic restraint.'],
-  positioning:
-    'Independent engineer and designer making products, systems, and tools that feel inevitable — clean code, considered surfaces, almost-cinematic interfaces.',
+  eyebrow: 'PM · Engineer · Builder',
+  headline: ['Ideas scoped', 'into products', 'that ship.'],
+  positioning: 'Turning vague briefs into clear scopes.',
   ctaPrimary: { label: 'See selected work', href: '#work' },
-  ctaSecondary: { label: 'Get in touch', href: '#contact' },
+  ctaSecondary: { label: 'Let’s talk', href: '#contact' },
   scrollHint: 'Scroll',
 } as const;
 
 export const sectionHeads = {
   work: {
     eyebrow: 'Selected work',
-    title: 'A few things I have shipped.',
-    sub: 'Recent product, system, and brand work — each entry is a self-contained story; case studies expand on request.',
+    title: 'Things I have led, designed, and built.',
+    sub: 'Five projects across energy platforms, web launches, and creative tech — each a story about turning a messy brief into something real.',
   },
   space: {
     eyebrow: 'Project space',
@@ -33,56 +32,91 @@ export const sectionHeads = {
   capabilities: {
     eyebrow: 'Capabilities',
     title: 'How I show up.',
-    sub: 'Engineer-first, designer-fluent, comfortable on either side of the brief.',
+    sub: 'Half PM, half engineer, fluent in design — comfortable on either side of the brief.',
   },
   about: {
     eyebrow: 'About',
-    title: 'Direct, calm, hands-on.',
+    title: 'Energy brain, design eye, builder hands.',
   },
   contact: {
     eyebrow: 'Contact',
-    title: 'Let’s build something quietly excellent.',
+    title: 'Got something worth scoping? Let’s talk.',
   },
 } as const;
 
 export const capabilities = {
-  Engineering: [
-    'TypeScript, React, Next.js',
-    'Node, edge runtimes, serverless',
-    'Postgres, Redis, queues',
-    'Distributed systems and APIs',
-    'WebGL, shaders, real-time graphics',
-    'Tooling, CI/CD, developer experience',
+  'Product & Delivery': [
+    'Roadmaps, scoping, and shaping',
+    'Backlog and release planning',
+    'Stakeholder alignment',
+    'Cross-functional coordination',
+    'Vendor and dev-team handoff',
   ],
-  'Design & UX': [
-    'Interface and interaction design',
-    'Motion direction and choreography',
-    'Editorial typography systems',
-    'Prototyping in code',
-    'Design systems and tokens',
+  'Creative Tech': [
+    'Front-end engineering — React, Next.js, TypeScript',
+    'Interactive 3D and WebGL experiments',
+    'Visual prototyping in code',
+    'Design systems and component libraries',
+    'Motion and interaction design',
   ],
-  Direction: [
-    'Product scoping and shaping',
-    'Engineering leadership',
+  Domain: [
+    'Energy and sustainability fluency',
+    'Engineering-to-business translation',
+    'UX thinking for technical products',
+    'Design–dev–stakeholder communication',
     'Mentoring and pairing',
-    'Cross-functional translation',
   ],
 } as const;
 
 export const about = {
   paragraphs: [
-    'I build software end-to-end — from infrastructure to interface. My work tends to look quiet up close and sharp at distance: tight type, real motion, surfaces with weight. I prefer small teams, clear briefs, and the long view.',
-    'Right now I am thinking about what cinematic restraint looks like on the web — interfaces that feel composed instead of decorated, motion that earns its place, and tools that respect the people using them.',
+    'I came up through energy engineering, learned to design along the way, and now spend most days writing code, scoping work, or making sure the right thing gets built. My role usually sits between the people who imagine a product and the people who ship it.',
+    'Right now I am most curious about creative tech — interactive 3D, real-time visuals, the kinds of interfaces that feel less like dashboards and more like places. The portfolio is a sandbox for that. Open to product, PM, and creative-technology roles where the work matters.',
   ],
-  glyph: '✴',
 } as const;
 
 export const contact = {
-  closer: 'Currently open to selective product and platform engagements.',
+  closer:
+    'Currently open to product, PM, and creative-technology roles — and to interesting collaborations on the side.',
   emailLabel: 'Mail me',
 } as const;
 
 export const footer = {
-  cta: 'Interested in selective product and platform work — the kind where quality of execution actually matters.',
+  cta: 'Available for product, PM, and creative-technology work — full-time roles, embedded gigs, or one-off scopes.',
   ctaLink: 'Start a conversation',
 } as const;
+
+// Single-screen home: everything lives on one glass MacBook display.
+export const screen = {
+  brand: 'HDRX',
+  panels: [
+    { id: 'contact', label: 'Contact' },
+  ],
+  location: { label: 'Germany', timeZone: 'Europe/Berlin' },
+  emailLabel: 'Email',
+  batteryLabel: 'Battery',
+  settingsLabel: 'Settings',
+  contactLabel: 'Contact',
+  settings: {
+    title: 'Control Centre',
+    darkMode: 'Dark mode',
+    on: 'On',
+    off: 'Off',
+    accent: 'Accent colour',
+    accents: { signal: 'Signal', shore: 'Shore', bone: 'Bone' },
+    display: 'Display',
+    sound: 'Sound',
+  },
+  bootLabel: 'Booting',
+  closeLabel: 'Close',
+  zoomOutLabel: 'Zoom out',
+  zoomInLabel: 'Zoom in',
+  prevLabel: 'Previous project',
+  nextLabel: 'Next project',
+  openLabel: 'Open case',
+  visitLabel: 'Visit site',
+  copyLabel: 'Copy',
+  copiedLabel: 'Copied',
+} as const;
+
+export type ScreenPanelId = (typeof screen.panels)[number]['id'];

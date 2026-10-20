@@ -1,0 +1,101 @@
+/* macOS menu bar, sized for the 14" panel the screen is laid out at (1512 x 982).
+   --u is one panel pixel: exact on the 3D display (.mbp__display is 1512 wide there),
+   and it scales with the flat display. Lives here, not in globals.css, because the
+   dev server stops hot-reloading globals.css; .mbp__head.menubar outranks the old rules. */
+.mbp__head.menubar {
+  --u: calc(100cqi / 1512);
+  --menubar-bg-solid: #1c1c1e;
+  --menubar-ink: rgba(255, 255, 255, 0.92);
+  --menubar-hover: rgba(255, 255, 255, 0.18);
+  justify-content: space-between;
+  align-items: center;
+  /* Same height as the notch, items centred beside it */
+  height: calc(32 * var(--u));
+  min-height: 0;
+  padding: 0 calc(6 * var(--u)) 0 calc(8 * var(--u));
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
+  font-size: calc(13 * var(--u));
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+  color: var(--menubar-ink);
+  background: rgba(28, 28, 30, 0.55);
+  backdrop-filter: blur(30px) saturate(180%);
+  /* macOS draws no rule under the bar */
+  box-shadow: none;
+}
+
+[data-theme='light'] .mbp__head.menubar {
+  --menubar-bg-solid: #f2f2f2;
+  --menubar-ink: rgba(0, 0, 0, 0.85);
+  --menubar-hover: rgba(0, 0, 0, 0.1);
+  background: rgba(246, 246, 246, 0.72);
+}
+
+/* Items carry their own padding, like NSStatusItems, so there's no group gap */
+.mbp__head.menubar .menubar__group {
+  gap: 0;
+  height: 100%;
+}
+
+.mbp__head.menubar .menubar__item {
+  display: inline-flex;
+  align-items: center;
+  height: calc(22 * var(--u));
+  padding: 0 calc(9 * var(--u));
+  border-radius: calc(5 * var(--u));
+  color: inherit;
+}
+
+/* The H sits where the Apple logo does */
+.mbp__head.menubar .menubar__logo {
+  box-sizing: content-box;
+  width: calc(14 * var(--u));
+  height: calc(14 * var(--u));
+  padding: 0 calc(10 * var(--u));
+  fill: currentColor;
+}
+
+/* Contact plays the bold app name */
+.mbp__head.menubar .menubar__app {
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.mbp__head.menubar .menubar__btn:hover,
+.mbp__head.menubar .menubar__btn:focus-visible,
+.mbp__head.menubar .menubar__btn[aria-expanded='true'] {
+  background: var(--menubar-hover);
+}
+
+/* Status items: narrower padding than menus, as on macOS */
+.mbp__head.menubar .menubar__group:last-of-type .menubar__item {
+  padding: 0 calc(7 * var(--u));
+}
+
+.mbp__head.menubar .menubar__battery {
+  width: calc(25 * var(--u));
+  height: calc(12.5 * var(--u));
+}
+
+.mbp__head.menubar .menubar__glyph {
+  width: calc(16 * var(--u));
+  height: calc(13 * var(--u));
+}
+
+.mbp__head.menubar .menubar__time {
+  padding: 0 calc(9 * var(--u));
+  font-weight: 400;
+  font-variant-numeric: normal;
+  white-space: nowrap;
+}
+
+/* Phones: the flat display is too narrow for panel pixels, use real ones */
+@media (max-width: 767px) {
+  .mbp__head.menubar {
+    --u: 1px;
+    height: 32px;
+    padding: 0 8px;
+    font-size: 13px;
+  }
+}
