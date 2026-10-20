@@ -26,19 +26,19 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Ahmed Hadrich — Builder, Engineer, Designer',
+  title: 'HDRX',
   description:
     'Independent engineer and designer making products, systems, and tools that feel inevitable.',
   metadataBase: new URL('https://hdrx.dev'),
   openGraph: {
-    title: 'Ahmed Hadrich — Builder, Engineer, Designer',
+    title: 'HDRX',
     description:
       'Independent engineer and designer making products, systems, and tools that feel inevitable.',
     type: 'website',
   },
 };
 
-const PREPAINT = `try{var d=document.documentElement;if(localStorage.getItem('hdrx-theme')==='dark')d.dataset.theme='dark';var s=JSON.parse(localStorage.getItem('hdrx-settings')||'null');if(s){var a={signal:'#ff5a1f',shore:'#7ac2c9',bone:'#e9dfc8'}[s.accent];if(a)d.style.setProperty('--accent-signal',a);var b=Math.min(1,Math.max(0.3,+s.brightness||1));d.style.setProperty('--screen-dim',((1-b)*0.85).toFixed(3));}}catch(e){}`;
+const PREPAINT = `try{var d=document.documentElement;if(localStorage.getItem('hdrx-theme')==='dark')d.dataset.theme='dark';var s=JSON.parse(localStorage.getItem('hdrx-settings')||'null');if(s){var a={signal:'#87bba2',shore:'#e8865a',bone:'#e9dfc8'}[s.accent];if(a)d.style.setProperty('--accent-signal',a);var b=Math.min(1,Math.max(0.3,+s.brightness||1));d.style.setProperty('--screen-dim',((1-b)*0.85).toFixed(3));}}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

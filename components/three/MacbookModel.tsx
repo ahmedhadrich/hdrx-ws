@@ -17,8 +17,9 @@ const NODE = {
   screen: 'tfTbkkzhxqpKRgC',
 };
 const MAT = {
-  // Aluminium shell, shared by base and lid
-  body: 'HdeQgqDhVRltuvQ',
+  // Aluminium shell, shared by base and lid. In the source it was 'HdeQgqDhVRltuvQ';
+  // gltf-transform's optimize merged it into this identical material when compressing.
+  body: 'zNRfbdNyoCOxSDD',
   screen: 'HlQwFCAPWzetDQy',
 };
 
@@ -157,9 +158,13 @@ function buildRig(scene: THREE.Object3D) {
   pivot.add(lid);
 
   // Swap the Apple logo for a backlit H, same spot on the lid back
-  logo.visible = false;
+  // The logo is not hidden: hiding it left its recess in the lid shell, which caught the light
+  // as a shiny logo shape. It keeps its place, filling the recess, and gets the lid's own
+  // finish below (bodyMat), so it reads as plain aluminium under the H.
   const normal = new THREE.Vector3(0, -Math.sin(LID_BACK_TILT), Math.cos(LID_BACK_TILT));
-  const at = logo.position.clone().addScaledVector(normal, 0.04);
+  // Lifted off the lid (cm): the back panel isn't quite parallel to the logo's plane, and the
+  // 13 cm halo sank into it, cutting the glow with a hard straight edge
+  const at = logo.position.clone().addScaledVector(normal, 0.35);
 
   const hMat = new THREE.MeshBasicMaterial({
     map: hTexture(),
@@ -183,12 +188,13 @@ function buildRig(scene: THREE.Object3D) {
     depthWrite: false,
   });
   const glow = new THREE.Mesh(new THREE.PlaneGeometry(13, 13), glowMat);
-  glow.position.copy(at).addScaledVector(normal, -0.01);
+  glow.position.copy(at).addScaledVector(normal, -0.05);
   glow.rotation.x = LID_BACK_TILT;
   logo.parent.add(glow);
   glow.name = 'hGlow';
 
   let screenMat: THREE.MeshStandardMaterial | null = null;
+  let bodyMat: THREE.MeshStandardMaterial | null = null;
   scene.traverse((o) => {
     const mesh = o as THREE.Mesh;
     if (!mesh.isMesh) return;
@@ -200,6 +206,7 @@ function buildRig(scene: THREE.Object3D) {
         std.color.set('#4a4b50');
         std.metalness = 1;
         std.roughness = 0.42;
+        bodyMat = std;
       } else if (std.name === MAT.screen) {
         // Screen off; the live display is the HTML glass screen
         std.emissive.set('#000000');
@@ -208,6 +215,8 @@ function buildRig(scene: THREE.Object3D) {
       }
     }
   });
+
+  if (bodyMat && (logo as THREE.Mesh).isMesh) (logo as THREE.Mesh).material = bodyMat;
 
   return { pivot, lid, hMat, glowMat, hMesh: h, glowMesh: glow, screenMat: screenMat as THREE.MeshStandardMaterial | null };
 }

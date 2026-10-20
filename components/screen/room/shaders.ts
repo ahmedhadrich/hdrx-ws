@@ -1,7 +1,7 @@
 // GLSL for the room behind the MacBook.
 
 // Dusk sky seen through the openings: shore teal overhead, warm bone horizon,
-// a signal-orange glow around the sun.
+// a soft accent-coloured glow around the sun.
 export const skyVertex = /* glsl */ `
   varying vec3 vDir;
   void main() {

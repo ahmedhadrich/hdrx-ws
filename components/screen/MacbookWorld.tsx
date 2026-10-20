@@ -8,6 +8,7 @@ import { DISPLAY_PX, MacbookModel, type MacbookRig } from '@/components/three/Ma
 import { Studio } from '@/components/three/Studio';
 import RoomScene, { CAM_LOOK, CAM_POS, PLINTH_TOP } from './room/RoomScene';
 import { parallax } from './room/parallax';
+import { setScreenVisible } from '@/components/three/screenVisibility';
 import { useScreenSettings } from './settings';
 import { useTheme } from '@/lib/hooks/useTheme';
 
@@ -32,6 +33,10 @@ const T = {
   done: 2.35,
   // zoom in / out, and the catch-up after a skipped intro
   zoom: 1.3,
+  // zoom out closes the lid, zoom in opens it; closing waits for the screen to fade first
+  lidZoom: 1.4,
+  closeDelay: 0.2,
+  screenFadeOut: 0.25,
 };
 
 // The model is real size (0.31 m wide, 0.22 m deep). In the room it is scaled so the base
@@ -160,9 +165,26 @@ function Director({
     fromLook: new THREE.Vector3(),
     look: new THREE.Vector3(),
     lastOpen: -1,
+    // Lid animation driven by zoom: from -> to, started at lidStart
+    openNow: 0,
+    lidFrom: 1,
+    lidTo: 1,
+    lidStart: -Infinity,
   });
   const corners = useRef<THREE.Vector3[]>([]);
+  // Display corners with the lid fully open: the zoomed-in camera aims here, so it
+  // lands smoothly instead of chasing a lid that's still moving
+  const openCorners = useRef<THREE.Vector3[]>([]);
   const v = useRef({ pos: new THREE.Vector3(), look: new THREE.Vector3(), p: new THREE.Vector3(), origin: new THREE.Vector3() });
+  // MacbookStage mounts the overlay with inline visibility: hidden
+  const overlayStyle = useRef<OverlayStyle>({ el: null, transform: '', opacity: '', visibility: 'hidden' });
+
+  // The overlay starts hidden; whatever happens to the world (unmount, error fallback to the
+  // flat layout), leave the screen layers running when it goes
+  useEffect(() => {
+    setScreenVisible(false);
+    return () => setScreenVisible(true);
+  }, []);
 
   useFrame(({ clock }) => {
     if (!rig || !group.current) return;
@@ -174,11 +196,24 @@ function Director({
     // Laptop origin in world space (the plinth in the room, the world origin otherwise)
     group.current.getWorldPosition(origin);
 
+    if (openCorners.current.length === 0) {
+      rig.apply({ open: 1, lit: 0, screen: 0 });
+      rig.displayCorners(openCorners.current);
+    }
+
     if (s.phase !== phase) {
       // Entering "open" without finishing the intro (skipped): glide to the current zoom
-      if (phase === 'open' && !s.introDone) startZoom(s, cam, now, zoom);
+      if (phase === 'open' && !s.introDone) {
+        startZoom(s, cam, now, zoom);
+        startLid(s, now, zoom);
+      }
       s.phase = phase;
       s.phaseStart = now;
+    }
+    // Zooming out closes the lid, zooming in opens it (camera eases alongside)
+    if (phase === 'open' && s.zoom !== zoom) {
+      startZoom(s, cam, now, zoom);
+      startLid(s, now, zoom);
     }
     const t = now - s.phaseStart;
 
@@ -193,7 +228,15 @@ function Director({
     } else if (phase === 'opening') {
       open = easeInOut(clamp01(t / T.lidDur));
       screen = easeInOut(clamp01((t - T.screenStart) / T.screenDur));
+    } else {
+      const closing = s.lidTo < s.lidFrom;
+      const k = clamp01((now - s.lidStart - (closing ? T.closeDelay : 0)) / T.lidZoom);
+      open = reducedMotion ? s.lidTo : s.lidFrom + (s.lidTo - s.lidFrom) * easeInOut(k);
+      // Screen glows only near upright; when closing it fades out before the lid moves
+      screen = smoothstep(0.78, 1, open);
+      if (closing && !reducedMotion) screen = Math.min(screen, 1 - clamp01((now - s.lidStart) / T.screenFadeOut));
     }
+    s.openNow = open;
     rig.apply({ open, lit, screen, backlight: backlightRef.current });
     rig.displayCorners(corners.current);
     // The room bakes its shadows once; re-bake while the lid moves
@@ -206,18 +249,19 @@ function Director({
     } else if (phase === 'opening') {
       const k = easeInOut(clamp01((t - T.camStart) / T.camDur));
       closedPose(origin, scale, aspect, s.fromPos, s.fromLook);
-      focusPose(corners.current, cam.fov, aspect, pos, look);
+      focusPose(openCorners.current, cam.fov, aspect, pos, look);
       pos.lerpVectors(s.fromPos, pos, k);
       look.lerpVectors(s.fromLook, look, k);
       if (t >= T.done && !s.introDone) {
         s.introDone = true;
         s.zoom = 'in';
         s.zoomStart = -Infinity;
+        s.lidFrom = s.lidTo = 1;
+        s.lidStart = -Infinity;
         onIntroDone();
       }
     } else {
-      if (s.zoom !== zoom) startZoom(s, cam, now, zoom);
-      if (zoom === 'in') focusPose(corners.current, cam.fov, aspect, pos, look);
+      if (zoom === 'in') focusPose(openCorners.current, cam.fov, aspect, pos, look);
       else if (withRoom) roomPose(reducedMotion, pos, look);
       else overviewPose(origin, scale, aspect, pos, look);
       const k = reducedMotion ? 1 : easeInOut(clamp01((now - s.zoomStart) / T.zoom));
@@ -231,7 +275,7 @@ function Director({
 
     // ---- live screen onto the display ----
     const el = overlay.current;
-    if (el) placeOverlay(el, corners.current, cam, size.width, size.height, screen, p);
+    if (el) placeOverlay(el, overlayStyle.current, corners.current, cam, size.width, size.height, screen, p);
 
     // This frame is drawn right after (the film pass runs at priority 1), so it's the
     // first one worth showing: start the entrance fade.
@@ -287,6 +331,12 @@ function startZoom(s: ZoomState, cam: THREE.Camera, now: number, zoom: Zoom) {
   s.fromLook.copy(s.look);
 }
 
+function startLid(s: { openNow: number; lidFrom: number; lidTo: number; lidStart: number }, now: number, zoom: Zoom) {
+  s.lidFrom = s.openNow;
+  s.lidTo = zoom === 'in' ? 1 : 0;
+  s.lidStart = now;
+}
+
 function closedPose(origin: THREE.Vector3, scale: number, aspect: number, pos: THREE.Vector3, look: THREE.Vector3) {
   // Pull back on narrow windows so the closed laptop still fits
   const d = CLOSED.distance * scale * Math.max(1, 1.5 / aspect);
@@ -334,10 +384,27 @@ function orbit(target: THREE.Vector3, az: number, el: number, d: number, out: TH
     .add(target);
 }
 
+// Last values written to the overlay's style, so frames where nothing moved (zoomed in
+// at rest, or the screen off) touch no DOM at all: no string building, no style writes.
+type OverlayStyle = { el: HTMLDivElement | null; transform: string; opacity: string; visibility: string };
+
+// Scratch for the projected corners, reused every frame (no per-frame arrays)
+const _xs = new Float64Array(4);
+const _ys = new Float64Array(4);
+
+function setVisibility(el: HTMLDivElement, last: OverlayStyle, value: 'visible' | 'hidden') {
+  if (last.visibility === value) return;
+  last.visibility = value;
+  el.style.visibility = value;
+  // The screen's own WebGL layers pause while it can't be seen
+  setScreenVisible(value === 'visible');
+}
+
 // Projective map of the display rectangle (DISPLAY_PX) onto the 4 projected corners:
 // a perspective-correct CSS matrix3d, so the HTML stays sharp and clickable.
 function placeOverlay(
   el: HTMLDivElement,
+  last: OverlayStyle,
   corners: THREE.Vector3[],
   cam: THREE.PerspectiveCamera,
   W: number,
@@ -345,19 +412,29 @@ function placeOverlay(
   screen: number,
   p: THREE.Vector3
 ) {
-  const xs: number[] = [];
-  const ys: number[] = [];
-  for (const c of corners) {
-    p.copy(c).project(cam);
+  // A new overlay element: forget what was written to the old one
+  if (last.el !== el) {
+    last.el = el;
+    last.transform = last.opacity = '';
+    last.visibility = el.style.visibility;
+  }
+  // Screen off (intro, or zoomed out with the lid shut): hidden, so its transform and
+  // opacity can't be seen; they are brought up to date on the first visible frame.
+  if (screen <= 0.001) {
+    setVisibility(el, last, 'hidden');
+    return;
+  }
+  for (let i = 0; i < 4; i++) {
+    p.copy(corners[i]).project(cam);
     if (p.z > 1 || p.z < -1) {
-      el.style.visibility = 'hidden';
+      setVisibility(el, last, 'hidden');
       return;
     }
-    xs.push(((p.x + 1) / 2) * W);
-    ys.push(((1 - p.y) / 2) * H);
+    _xs[i] = ((p.x + 1) / 2) * W;
+    _ys[i] = ((1 - p.y) / 2) * H;
   }
-  const [x0, x1, x2, x3] = xs;
-  const [y0, y1, y2, y3] = ys;
+  const x0 = _xs[0], x1 = _xs[1], x2 = _xs[2], x3 = _xs[3];
+  const y0 = _ys[0], y1 = _ys[1], y2 = _ys[2], y3 = _ys[3];
   const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3;
   const dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
   const det = dx1 * dy2 - dx2 * dy1;
@@ -368,11 +445,23 @@ function placeOverlay(
   const d = y1 - y0 + g * y1;
   const e = y3 - y0 + h * y3;
   const { width: w, height: hh } = DISPLAY_PX;
-  const m = [a / w, d / w, 0, g / w, b / hh, e / hh, 0, h / hh, 0, 0, 1, 0, x0, y0, 0, 1];
-  el.style.transform = `matrix3d(${m.map((n) => +n.toFixed(8)).join(',')})`;
-  el.style.opacity = String(screen);
-  el.style.visibility = screen > 0.001 ? 'visible' : 'hidden';
+  const transform =
+    `matrix3d(${f(a / w)},${f(d / w)},0,${f(g / w)},${f(b / hh)},${f(e / hh)},0,${f(h / hh)},` +
+    `0,0,1,0,${f(x0)},${f(y0)},0,1)`;
+  if (transform !== last.transform) {
+    last.transform = transform;
+    el.style.transform = transform;
+  }
+  const opacity = String(screen);
+  if (opacity !== last.opacity) {
+    last.opacity = opacity;
+    el.style.opacity = opacity;
+  }
+  setVisibility(el, last, 'visible');
 }
+
+// Same number formatting the matrix always had: 8 decimals, trailing zeros dropped
+const f = (n: number) => +n.toFixed(8);
 
 // Old backlit-logo flicker: catches, dips, settles to full
 function flicker(p: number) {
@@ -394,6 +483,10 @@ function flicker(p: number) {
 }
 
 const clamp01 = (n: number) => Math.min(Math.max(n, 0), 1);
+const smoothstep = (a: number, b: number, x: number) => {
+  const k = clamp01((x - a) / (b - a));
+  return k * k * (3 - 2 * k);
+};
 const easeInOut = (n: number) => (n < 0.5 ? 4 * n * n * n : 1 - Math.pow(-2 * n + 2, 3) / 2);
 
 // If the model or WebGL fails, fall back to the flat layout instead of an empty room

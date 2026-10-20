@@ -2,12 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
-import {
-  screen,
-  sectionHeads,
-  site,
-  type ScreenPanelId,
-} from '@/content/copy';
+import { screen, sectionHeads, site, type ScreenPanelId } from '@/content/copy';
 import { EASE_OUT_SOFT } from '@/lib/utils/motion';
 
 const variants = {
@@ -55,7 +50,6 @@ export function InfoPanel({ id, onClose, reducedMotion }: Props) {
       >
         <header className="mb-6 flex items-start justify-between gap-6">
           <div>
-            {id !== 'contact' && <p className="hud mb-3 text-ink-muted">● {head.eyebrow}</p>}
             <h2
               id={`panel-${id}`}
               ref={headingRef}

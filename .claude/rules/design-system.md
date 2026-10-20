@@ -24,8 +24,8 @@ Restrained neutral base. Selective color breaks (HUPR-inspired) at section trans
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--accent-signal` | `#FF5A1F` (warm signal orange) | Primary CTA accent, focus rings, single-section break |
-| `--accent-shore`  | `#7AC2C9` (washed teal) | Secondary cool break, link hover ghost |
+| `--accent-signal` | `#87BBA2` (sage green; was signal orange #FF5A1F) | Primary CTA accent, focus rings, single-section break |
+| `--accent-shore`  | `#E8865A` (terracotta orange; was washed teal #7AC2C9) | Secondary accent, link hover ghost |
 | `--accent-bone`   | `#E9DFC8` (parchment) | Editorial overlay, card subtitle highlight |
 | `--accent-ember`  | `#7B1F1F` (deep ember) | Used only in retro-tech shader signature |
 
@@ -127,7 +127,7 @@ Glass-aware. No generic Material elevation.
 | `--shadow-soft` | `0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06)` |
 | `--shadow-lift` | `0 2px 6px rgba(0,0,0,0.08), 0 24px 48px rgba(0,0,0,0.12)` |
 | `--shadow-press` | inset `0 1px 0 rgba(255,255,255,0.5)` |
-| `--shadow-glow-signal` | `0 0 0 1px rgba(255,90,31,0.5), 0 8px 24px rgba(255,90,31,0.18)` |
+| `--shadow-glow-signal` | `0 0 0 1px rgba(135,187,162,0.55), 0 8px 24px rgba(135,187,162,0.2)` |
 
 ---
 

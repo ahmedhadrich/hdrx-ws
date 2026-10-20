@@ -26,6 +26,3 @@ export function fanPose(offset: number): FanPose {
   };
 }
 
-export function wrapIndex(i: number, count: number) {
-  return ((i % count) + count) % count;
-}

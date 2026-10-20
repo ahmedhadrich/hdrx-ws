@@ -5,10 +5,19 @@ import { useEffect, useRef, type CSSProperties, type RefObject } from 'react';
 import { screen } from '@/content/copy';
 import { useTheme } from '@/lib/hooks/useTheme';
 import { EASE_OUT_SOFT } from '@/lib/utils/motion';
-import { ACCENTS, MIN_BRIGHTNESS, updateSettings, useScreenSettings, type Accent } from './settings';
+import {
+  ACCENTS,
+  MIN_BRIGHTNESS,
+  updateSettings,
+  useScreenSettings,
+  type Accent,
+} from './settings';
 // Display / Sound modules: kept beside the component (tokens and the panel shell stay in globals.css)
 import './SettingsPanel.css';
 
+// Predefined times of day (hours) for checking the room's lighting at a glance. They sit on
+// RoomScene's hand-tuned TimeOfDay keyframes (dawn's is 6.4; 6.5 keeps it on the slider's
+// 15-minute step); between keyframes the lighting is only interpolated.
 const variants = {
   panel: { hidden: { opacity: 0, y: -6 }, visible: { opacity: 1, y: 0 } },
   reduced: { hidden: { opacity: 0 }, visible: { opacity: 1 } },
@@ -134,25 +143,49 @@ export function SettingsPanel({ open, onClose, trigger, reducedMotion }: Props) 
 interface SliderProps {
   label: string;
   min: number;
+  /** Defaults to 1 (brightness, volume); the time slider runs 0 – 24 */
+  max?: number;
+  step?: number;
   value: number;
   onChange: (v: number) => void;
+  /** What screen readers announce; defaults to a percentage */
+  valueText?: string;
   start: React.ReactNode;
   end: React.ReactNode;
   /** Sound's white pill thumb; Display shows the fill only */
   knob?: boolean;
   /** Sound's "more" chevron (decorative) */
   chevron?: boolean;
+  /** Right side of the module header (the time module's clock + Auto) */
+  headExtra?: React.ReactNode;
+  /** Below the track (the time module's presets) */
+  children?: React.ReactNode;
 }
 
 // macOS Control Center module: titled glass card, thin track between a small and a large icon.
 // The native range sits invisibly on top, so drag, keyboard and screen readers keep working.
-function Slider({ label, min, value, onChange, start, end, knob = false, chevron = false }: SliderProps) {
-  const frac = (value - min) / (1 - min);
+function Slider({
+  label,
+  min,
+  max = 1,
+  step = 0.01,
+  value,
+  onChange,
+  valueText,
+  start,
+  end,
+  knob = false,
+  chevron = false,
+  headExtra,
+  children,
+}: SliderProps) {
+  const frac = (value - min) / (max - min);
   return (
     <div className="settings__module">
       <div className="settings__module-head">
         <span className="settings__module-title">{label}</span>
         {chevron && <ChevronIcon />}
+        {headExtra}
       </div>
       <div className="settings__control">
         <span className="settings__end settings__end--start" aria-hidden="true">
@@ -167,18 +200,19 @@ function Slider({ label, min, value, onChange, start, end, knob = false, chevron
           <input
             type="range"
             min={min}
-            max={1}
-            step={0.01}
+            max={max}
+            step={step}
             value={value}
             onChange={(e) => onChange(Number(e.target.value))}
             aria-label={label}
-            aria-valuetext={`${Math.round(frac * 100)}%`}
+            aria-valuetext={valueText ?? `${Math.round(frac * 100)}%`}
           />
         </div>
         <span className="settings__end settings__end--end" aria-hidden="true">
           {end}
         </span>
       </div>
+      {children}
     </div>
   );
 }

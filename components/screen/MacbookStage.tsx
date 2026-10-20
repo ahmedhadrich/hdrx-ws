@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { projects, type Project } from '@/content/projects';
-import { screen, site, type ScreenPanelId } from '@/content/copy';
+import { screen, type ScreenPanelId } from '@/content/copy';
 import { useTheme } from '@/lib/hooks/useTheme';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
@@ -17,6 +17,7 @@ import { CssCarousel } from './CssCarousel';
 import { InfoPanel } from './InfoPanel';
 import { Dock } from './Dock';
 import { MenuBar } from './MenuBar';
+import { TimeControl } from './TimeControl';
 import { startParallax } from './room/parallax';
 import type { Zoom } from './MacbookWorld';
 import { DISPLAY_PX } from '@/components/three/display';
@@ -98,6 +99,16 @@ export function MacbookStage() {
   const project = projects[active];
   const target = projectTarget(project);
 
+  const endIntro = useCallback((thenBoot: Boot) => {
+    setIntro('open');
+    setBoot((b) => (b === 'pending' ? thenBoot : b));
+  }, []);
+
+  const fallBackToFlat = useCallback(() => {
+    setMode('flat');
+    endIntro('on');
+  }, [endIntro]);
+
   // ---- mount: WebGL probe + boot sequence (every visit) ----
   useEffect(() => {
     setMounted(true);
@@ -112,9 +123,7 @@ export function MacbookStage() {
 
     // Phones have no room for a laptop: flat full-screen glass
     if (!hasWebgl || window.matchMedia('(max-width: 767px)').matches) {
-      setMode('flat');
-      setIntro('open');
-      setBoot('on');
+      fallBackToFlat();
       return;
     }
 
@@ -123,18 +132,7 @@ export function MacbookStage() {
     skipIntro.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setMode('3d');
     setIntro('loading');
-  }, []);
-
-  const endIntro = useCallback((thenBoot: Boot) => {
-    setIntro('open');
-    setBoot((b) => (b === 'pending' ? thenBoot : b));
-  }, []);
-
-  const fallBackToFlat = useCallback(() => {
-    setMode('flat');
-    setIntro('open');
-    setBoot((b) => (b === 'pending' ? 'on' : b));
-  }, []);
+  }, [fallBackToFlat]);
 
   // Model never arrived: don't hold the visitor on an empty room
   useEffect(() => {
@@ -150,13 +148,9 @@ export function MacbookStage() {
   }, [intro]);
 
   const onWorldReady = useCallback(() => {
-    if (skipIntro.current) {
-      setIntro('open');
-      setBoot((b) => (b === 'pending' ? 'on' : b));
-    } else {
-      setIntro((i) => (i === 'loading' ? 'closed' : i));
-    }
-  }, []);
+    if (skipIntro.current) endIntro('on');
+    else setIntro((i) => (i === 'loading' ? 'closed' : i));
+  }, [endIntro]);
 
   const onIntroDone = useCallback(() => endIntro('booting'), [endIntro]);
 
@@ -401,10 +395,7 @@ export function MacbookStage() {
       {/* ---------- HUD: footer ---------- */}
       <motion.footer className="mbp__foot" initial="hidden" animate={on ? 'visible' : 'hidden'}>
         <motion.div variants={hudV} custom={3}>
-          <Dock
-            tags={project.tags}
-            reducedMotion={reducedMotion}
-          />
+          <Dock tags={project.tags} reducedMotion={reducedMotion} />
         </motion.div>
       </motion.footer>
 
@@ -519,6 +510,11 @@ export function MacbookStage() {
               {zoom === 'in' ? screen.zoomOutLabel : screen.zoomInLabel}
             </button>
           )}
+          {/* Room lighting, out in the room under the plinth: only once the intro is done and
+              only zoomed out, where the plinth is in view and it can't cover the screen */}
+          <AnimatePresence>
+            {on && showRoom && zoom === 'out' && <TimeControl key="time" reducedMotion={reducedMotion} />}
+          </AnimatePresence>
         </>
       )}
     </div>

@@ -12,7 +12,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const project = projects.find((p) => p.slug === params.slug);
   if (!project) return {};
   return {
-    title: `${project.title} — Ahmed Hadrich`,
+    title: `${project.title} — HDRX`,
     description: project.impact,
   };
 }

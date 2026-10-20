@@ -1,14 +1,14 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 
 // Screen settings from the menu bar's Control Center: accent colour, display
 // brightness and volume. Plain module store so anything (the menu bar, the
 // display, the music later) can read it without a provider.
 
 export const ACCENTS = {
-  signal: '#ff5a1f',
-  shore: '#7ac2c9',
+  signal: '#87bba2',
+  shore: '#e8865a',
   bone: '#e9dfc8',
 } as const;
 export type Accent = keyof typeof ACCENTS;
@@ -17,15 +17,19 @@ export interface ScreenSettings {
   accent: Accent;
   /** 0.3 – 1; below 1 the display is dimmed */
   brightness: number;
-  /** 0 – 1; read by the soundtrack once it exists (getVolume / subscribe) */
+  /** 0 – 1; stored for the soundtrack, which doesn't exist yet */
   volume: number;
+  /** Room lighting follows the visitor's clock; off = the manual `hour` below */
+  timeAuto: boolean;
+  /** Manual time of day in hours, 0 – 24 (used when timeAuto is off) */
+  hour: number;
 }
 
 // Also read by the pre-paint script in app/layout.tsx
 export const SETTINGS_KEY = 'hdrx-settings';
 export const MIN_BRIGHTNESS = 0.3;
 
-const DEFAULTS: ScreenSettings = { accent: 'signal', brightness: 1, volume: 0.6 };
+const DEFAULTS: ScreenSettings = { accent: 'signal', brightness: 1, volume: 0.6, timeAuto: true, hour: 17.5 };
 
 let state: ScreenSettings = DEFAULTS;
 let loaded = false;
@@ -41,6 +45,8 @@ function load() {
         accent: saved.accent in ACCENTS ? saved.accent : DEFAULTS.accent,
         brightness: clamp(Number(saved.brightness ?? DEFAULTS.brightness), MIN_BRIGHTNESS, 1),
         volume: clamp(Number(saved.volume ?? DEFAULTS.volume), 0, 1),
+        timeAuto: typeof saved.timeAuto === 'boolean' ? saved.timeAuto : DEFAULTS.timeAuto,
+        hour: clamp(Number(saved.hour ?? DEFAULTS.hour), 0, 24),
       };
     }
   } catch {
@@ -72,15 +78,10 @@ export function updateSettings(patch: Partial<ScreenSettings>) {
   listeners.forEach((l) => l());
 }
 
-export function subscribe(listener: () => void) {
+function subscribe(listener: () => void) {
   load();
   listeners.add(listener);
   return () => listeners.delete(listener);
-}
-
-export function getVolume() {
-  load();
-  return state.volume;
 }
 
 export function useScreenSettings(): ScreenSettings {
@@ -89,4 +90,31 @@ export function useScreenSettings(): ScreenSettings {
     () => (load(), state),
     () => DEFAULTS
   );
+}
+
+/** The visitor's local time as fractional hours, 0 – 24 */
+export function localHour(d = new Date()) {
+  return d.getHours() + d.getMinutes() / 60;
+}
+
+/**
+ * Effective time of day for the room's lighting: the visitor's clock (re-read every
+ * 30 s) when timeAuto is on, otherwise the manual hour. Server render returns the default.
+ */
+export function useHour(): number {
+  const { timeAuto, hour } = useScreenSettings();
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => {
+    if (!timeAuto) return;
+    setNow(localHour());
+    const id = setInterval(() => setNow(localHour()), 30_000);
+    return () => clearInterval(id);
+  }, [timeAuto]);
+  return timeAuto ? (now ?? DEFAULTS.hour) : hour;
+}
+
+/** "17:30" for a fractional hour */
+export function formatHour(h: number) {
+  const total = Math.round(h * 60) % (24 * 60);
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }

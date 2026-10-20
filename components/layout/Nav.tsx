@@ -8,16 +8,7 @@ import { site } from '@/content/copy';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 import { EASE_OUT_SOFT, EASE_GLASS } from '@/lib/utils/motion';
 
-// ─── Section ticker config ─────────────────────────────────────────────────────
-
-const SECTIONS = [
-  { id: 'work', label: 'Work' },
-  { id: 'space', label: 'Space' },
-  { id: 'capabilities', label: 'Capabilities' },
-  { id: 'about', label: 'About' },
-  { id: 'contact', label: 'Contact' },
-] as const;
-
+// Never rendered on the home page (see SiteChrome), so links point back to its anchors
 const NAV_LINKS = [
   { label: 'Work', anchor: '#work' },
   { label: 'Space', anchor: '#space' },
@@ -88,46 +79,14 @@ function CloseIcon() {
 
 export function Nav() {
   const pathname = usePathname();
-  const isHome = pathname === '/';
   const reduced = useReducedMotion();
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [intersectedLabel, setIntersectedLabel] = useState<string>('');
   const menuRef = useRef<HTMLDivElement>(null);
   const burgerRef = useRef<HTMLButtonElement>(null);
 
-  // On sub-pages, derive label from pathname during render (not in an effect).
-  const pathLabel = !isHome
-    ? (pathname.split('/').filter(Boolean).pop() ?? '').toUpperCase()
-    : '';
-
-  const sectionLabel = isHome ? intersectedLabel : pathLabel;
-
-  // ─── Section ticker via IntersectionObserver ─────────────────────────────
-
-  useEffect(() => {
-    if (!isHome) return;
-
-    const observers: IntersectionObserver[] = [];
-
-    SECTIONS.forEach(({ id, label }) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      const obs = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setIntersectedLabel(label.toUpperCase());
-          }
-        },
-        { threshold: 0.4 }
-      );
-      obs.observe(el);
-      observers.push(obs);
-    });
-
-    return () => observers.forEach((obs) => obs.disconnect());
-  }, [isHome]);
+  // Ticker shows the last path segment, e.g. /work/edu-360 → EDU-360
+  const sectionLabel = (pathname.split('/').filter(Boolean).pop() ?? '').toUpperCase();
 
   // ─── Close menu on outside click ─────────────────────────────────────────
 
@@ -164,12 +123,7 @@ export function Nav() {
     return () => document.removeEventListener('keydown', handleKey);
   }, [menuOpen]);
 
-  // ─── Link href helper (anchor works on home; prefixed on sub-pages) ───────
-
-  const href = useCallback(
-    (anchor: string) => (isHome ? anchor : `/${anchor}`),
-    [isHome]
-  );
+  const href = (anchor: string) => `/${anchor}`;
 
   const handleLinkClick = useCallback(() => setMenuOpen(false), []);
 
@@ -195,7 +149,7 @@ export function Nav() {
             initial="closed"
             animate="open"
             exit="closed"
-            className="nav-menu nav-menu-panel absolute flex flex-col"
+            className="nav-menu absolute flex flex-col"
             style={{
               bottom: 'calc(100% + 12px)',
               left: 0,
@@ -316,7 +270,7 @@ export function Nav() {
 
           {/* Logo — centered in remaining space */}
           <a
-            href={isHome ? '#top' : '/'}
+            href="/"
             aria-label={site.name}
             className="flex items-center justify-center flex-shrink-0 text-ink-primary hover:text-ink-secondary transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-accent-signal focus-visible:outline-offset-2 focus-visible:rounded-full"
             style={{ width: '70px' }}
