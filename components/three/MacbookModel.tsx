@@ -40,8 +40,7 @@ const DISPLAY = {
   // Up along the panel (towards the camera notch): back and up, as the lid leans back
   up: new THREE.Vector3(0, -6.692, -18.374).normalize(),
 };
-// HTML laid onto the panel at the 14" MBP's native "looks like" resolution
-export const DISPLAY_PX = { width: 1512, height: 982 };
+export { DISPLAY_PX } from './display';
 
 export interface MacbookControls {
   /** 0 = closed, 1 = open as shipped */
@@ -104,7 +103,8 @@ export function MacbookModel({ controls, onReady, castShadow = false }: Props) {
   return <primitive object={scene} />;
 }
 
-useGLTF.preload(MACBOOK_URL);
+// Start the download as soon as the 3D code loads (browser only; never on the server)
+if (typeof window !== 'undefined') useGLTF.preload(MACBOOK_URL);
 
 // One-time surgery on the cached scene: hinge pivot, logo swap, finish.
 function prepare(scene: THREE.Object3D): MacbookRig {

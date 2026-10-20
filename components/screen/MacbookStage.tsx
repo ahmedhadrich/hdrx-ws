@@ -19,7 +19,7 @@ import { Dock } from './Dock';
 import { MenuBar } from './MenuBar';
 import { startParallax } from './room/parallax';
 import type { Zoom } from './MacbookWorld';
-import { DISPLAY_PX } from '@/components/three/MacbookModel';
+import { DISPLAY_PX } from '@/components/three/display';
 
 const WorkCarousel = dynamic(() => import('./WorkCarousel'), { ssr: false });
 const MacbookWorld = dynamic(() => import('./MacbookWorld'), { ssr: false });
