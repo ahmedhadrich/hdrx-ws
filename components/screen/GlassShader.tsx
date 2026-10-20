@@ -174,8 +174,15 @@ export function GlassShader({ dark, reducedMotion }: Props) {
 
     let raf = 0;
     const start = performance.now();
-    const loop = () => {
-      if (!document.hidden) draw((performance.now() - start) / 1000);
+    // 30 fps is plenty for grain and a slow sweep (film runs at 24), and halves the
+    // full-display redraws the browser has to composite through the 3D warp
+    const FRAME_MS = 1000 / 30;
+    let last = -Infinity;
+    const loop = (ts: number) => {
+      if (!document.hidden && ts - last >= FRAME_MS - 1) {
+        last = ts;
+        draw((performance.now() - start) / 1000);
+      }
       raf = requestAnimationFrame(loop);
     };
     // Only loop while the screen can be seen: in 3D mode the overlay is hidden during the

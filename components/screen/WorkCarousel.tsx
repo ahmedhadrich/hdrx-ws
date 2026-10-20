@@ -9,6 +9,8 @@ import { projects } from '@/content/projects';
 import { FAN_VISIBLE, fanPose } from './fan';
 import { isScreenVisible, onScreenVisibility } from '@/components/three/screenVisibility';
 
+const IS_FIREFOX = typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent);
+
 // Panel size in world units (16:10, matches the thumbnails)
 const W = 1.6;
 const H = 1.0;
@@ -33,7 +35,9 @@ export default function WorkCarousel({ active, onPick, dark }: Props) {
   return (
     <Canvas
       camera={{ position: [0, 0.1, 4.4], fov: 32 }}
-      dpr={[1, 2]}
+      // Firefox composites a WebGL canvas inside the screen's matrix3d warp more slowly than
+      // Chromium; 1.5x is still sharp once warped, and costs ~44% fewer pixels than 2x
+      dpr={[1, IS_FIREFOX ? 1.5 : 2]}
       // Draw only while something moves (fan easing, camera fit, hover, theme, textures):
       // at rest the panels are a still picture, and while the screen is hidden nothing draws
       frameloop="demand"

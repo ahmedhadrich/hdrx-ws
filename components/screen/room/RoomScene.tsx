@@ -8,6 +8,10 @@ import { parallax } from './parallax';
 import { useHour, useScreenSettings, type Accent } from '../settings';
 import { dustFragment, dustVertex, postFragment, postVertex, skyFragment, skyVertex } from './shaders';
 
+// Firefox resolves MSAA targets and fills hi-DPI canvases much slower than Chromium/Safari:
+// it gets fewer FBO samples and DPR 1 (the grain hides both). Same check as WorkCarousel.
+const IS_FIREFOX = typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent);
+
 // Design tokens, mirrored from globals.css (WebGL can't read CSS variables)
 const BONE = '#e9dfc8';
 // The site accent (sage). Key stays `signal` in settings so saved choices keep working.
@@ -204,7 +208,7 @@ export default function RoomScene({ still, children, externalCamera = false }: P
     <Canvas
       className="mbp__scene"
       camera={{ position: CAM_POS.toArray(), fov: CAM_FOV, near: 0.05, far: 200 }}
-      dpr={[1, 1.25]}
+      dpr={IS_FIREFOX ? [1, 1] : [1, 1.25]}
       // PCF, not R3F's default PCFSoft: three r18x deprecated soft shadows and warns on every shadow render
       shadows="percentage"
       frameloop={still ? 'demand' : 'always'}
@@ -666,7 +670,8 @@ function CameraRig({ still }: { still: boolean }) {
 // Renders the room into an offscreen target, then draws it through the film shader
 function FilmPass({ still }: { still: boolean }) {
   const { gl, scene, camera } = useThree();
-  const target = useFBO({ samples: 4 });
+  // Not 0: the canvas runs antialias off, so these samples are the room's only AA
+  const target = useFBO({ samples: IS_FIREFOX ? 2 : 4 });
   const post = useMemo(() => new THREE.Scene(), []);
   const ortho = useMemo(() => new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), []);
   const uniforms = useMemo(

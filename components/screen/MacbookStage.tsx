@@ -157,8 +157,11 @@ export function MacbookStage() {
   // Room camera + MacBook tilt follow the pointer, only once the intro is over.
   useEffect(() => {
     if (intro !== 'open' || !showRoom || reducedMotion) return;
+    // 3D: only the room camera uses it, and only zoomed out. No --px/--py on the root there:
+    // those inherited variables restyled the whole warped site on every pointer move.
+    if (mode === '3d') return zoom === 'out' ? startParallax() : undefined;
     return startParallax(rootRef.current);
-  }, [intro, showRoom, reducedMotion]);
+  }, [intro, showRoom, reducedMotion, mode, zoom]);
 
   // Any click or key during the intro jumps straight to the live screen
   useEffect(() => {
