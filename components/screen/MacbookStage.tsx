@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { projects, type Project } from '@/content/projects';
+import { projects, projectTarget } from '@/content/projects';
 import { screen, type ScreenPanelId } from '@/content/copy';
 import { useTheme } from '@/lib/hooks/useTheme';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
@@ -57,13 +57,6 @@ type Boot = 'pending' | 'booting' | 'on';
 type Intro = 'pending' | 'loading' | 'closed' | 'opening' | 'open';
 // 3d: the MacBook model is the frame for good. flat: phones / no WebGL / model failed.
 type Mode = 'pending' | '3d' | 'flat';
-
-// Case study when one exists, otherwise the live site.
-function projectTarget(p: Project): { href: string; external: boolean } | null {
-  if (p.caseStudy) return { href: `/work/${p.slug}`, external: false };
-  if (p.link) return { href: p.link, external: true };
-  return null;
-}
 
 export function MacbookStage() {
   const router = useRouter();

@@ -55,3 +55,19 @@ glass MacBook Pro with a transparent display ("everything written on glass").
 - Intro (updated): plays on every page load, not once per session. The
   `hdrx-booted` sessionStorage key and the `?intro` replay param are gone. Reduced
   motion still opens straight to the live screen; any click or key skips the intro.
+
+## Mobile home (2026-10-21)
+
+- Phones AND tablets (`MOBILE_QUERY` in `lib/utils/device.ts`: `(max-width: 767px), (pointer: coarse)`)
+  get `components/mobile/MobileHome.tsx` instead of the MacBook. Reason: the always-on WebGL
+  glass shader + blobs were buggy on mid-range phones.
+- `components/HomeSwitch.tsx` picks the version; `MacbookStage` is `next/dynamic` with `ssr: false`,
+  so mobile never downloads three.js, R3F or the shader. The server renders `MobileHome`; CSS hides
+  `.mhome` on desktop until JS swaps in the stage (placeholder: empty `.mbp` dark room).
+- Carousel = CSS scroll-snap (one card per swipe), no JS animation loop, no backdrop-filter.
+  Contact = native `<dialog>` bottom sheet (email, copy, socials).
+- Theme on mobile follows the device's `prefers-color-scheme`, live. Desktop keeps the light
+  default + saved choice. The rule lives in three places that must agree: `useTheme`, the pre-paint
+  script and `viewport.themeColor` in `app/layout.tsx`.
+- `projectTarget()` moved to `content/projects.ts` (shared by both homes).
+- MacbookStage's own flat / CssCarousel fallback now only serves desktops without WebGL.

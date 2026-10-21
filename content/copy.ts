@@ -87,4 +87,12 @@ export const screen = {
   copiedLabel: 'Copied',
 } as const;
 
+// Phones and tablets: a swipe carousel instead of the MacBook (components/mobile/MobileHome)
+export const mobile = {
+  carouselLabel: 'Selected work',
+  slideOf: 'of',
+  goToLabel: 'Go to project',
+  contactLabel: 'Get in touch',
+} as const;
+
 export type ScreenPanelId = (typeof screen.panels)[number]['id'];

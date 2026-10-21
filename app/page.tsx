@@ -1,10 +1,10 @@
-import { MacbookStage } from '@/components/screen/MacbookStage';
+import { HomeSwitch } from '@/components/HomeSwitch';
 
-// A single screen that brings its own frame (menu bar, dock, room); no SiteChrome here
+// Desktop: the MacBook brings its own frame (menu bar, dock, room). Phones and tablets: a swipe carousel.
 export default function HomePage() {
   return (
     <main id="main">
-      <MacbookStage />
+      <HomeSwitch />
     </main>
   );
 }

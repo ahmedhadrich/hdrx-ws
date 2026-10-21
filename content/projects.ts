@@ -129,3 +129,10 @@ export const projects: Project[] = [
     accent: '#ea8837',
   },
 ];
+
+// Case study when one exists, otherwise the live site.
+export function projectTarget(p: Project): { href: string; external: boolean } | null {
+  if (p.caseStudy) return { href: `/work/${p.slug}`, external: false };
+  if (p.link) return { href: p.link, external: true };
+  return null;
+}

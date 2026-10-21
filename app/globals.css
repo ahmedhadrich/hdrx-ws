@@ -1098,3 +1098,320 @@ a {
   pointer-events: none;
   transition: opacity 120ms linear;
 }
+
+/* ==========================================================================
+   Mobile home (phones + tablets): components/mobile/MobileHome.tsx
+   No backdrop-filter and no running animations: cheap on mid-range GPUs.
+   ========================================================================== */
+.mhome {
+  --card-w: min(84vw, 36rem);
+  --gutter: 16px;
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  background: var(--bg-base);
+  color: var(--ink-primary);
+  overflow: hidden;
+}
+
+/* Desktop before JS has picked the MacBook (query mirrors lib/utils/device.ts) */
+@media (min-width: 768px) and (not (pointer: coarse)) {
+  .mhome { display: none; }
+}
+
+.mhome__bar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: calc(14px + env(safe-area-inset-top)) var(--gutter) 10px;
+}
+
+.mhome__mark {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-tighter);
+}
+
+.mhome__count,
+.mhome__meta,
+.mhome__open,
+.mhome__ghost {
+  font-family: var(--font-hud);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mhome__count {
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Track: native swipe, one card per gesture ---------- */
+.mhome__track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding-inline: calc((100% - var(--card-w)) / 2);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mhome__track::-webkit-scrollbar { display: none; }
+
+.mhome__track:focus-visible {
+  outline-offset: -4px;
+}
+
+.mhome__slide {
+  flex: 0 0 var(--card-w);
+  max-height: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  opacity: 0.55;
+  transform: scale(0.96);
+  transition: opacity var(--dur-base) var(--ease-out-soft), transform var(--dur-base) var(--ease-out-soft);
+}
+
+.mhome__slide[data-active] {
+  opacity: 1;
+  transform: none;
+}
+
+.mhome__card {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: var(--bg-raised);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow-soft);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mhome__thumb {
+  position: relative;
+  flex: none;
+  aspect-ratio: 16 / 10;
+  background: var(--rule);
+}
+
+.mhome__text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  padding: 18px 20px 20px;
+}
+
+.mhome__meta { color: var(--ink-muted); }
+
+.mhome__title {
+  font-size: 1.75rem;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: var(--tracking-tighter);
+}
+
+.mhome__role {
+  font-size: 0.875rem;
+  color: var(--ink-secondary);
+}
+
+.mhome__impact {
+  margin-top: 4px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+}
+
+.mhome__open {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--accent-signal);
+}
+
+/* ---------- Dots ---------- */
+.mhome__dots {
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+}
+
+/* 24px tap target around a 6px dot */
+.mhome__dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+}
+
+.mhome__dot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--ink-muted);
+  opacity: 0.4;
+  transition: width var(--dur-fast) var(--ease-out-soft), opacity var(--dur-fast);
+}
+
+.mhome__dot[aria-current]::before {
+  width: 18px;
+  background: var(--ink-primary);
+  opacity: 1;
+}
+
+/* ---------- Contact ---------- */
+.mhome__foot {
+  display: flex;
+  justify-content: center;
+  padding: 10px var(--gutter) calc(16px + env(safe-area-inset-bottom));
+}
+
+.mhome__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: min(100%, 36rem);
+  height: 52px;
+  border-radius: 999px;
+  background: var(--ink-primary);
+  color: var(--bg-base);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.mhome__cta::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-signal);
+}
+
+.mhome__sheet {
+  width: min(100%, 36rem);
+  max-width: 100%;
+  max-height: 90dvh;
+  margin: auto auto 0;
+  padding: 0;
+  border: 1px solid var(--rule);
+  border-bottom: 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--bg-raised);
+  color: var(--ink-primary);
+  transform: translateY(100%);
+  transition: transform var(--dur-base) var(--ease-out-soft),
+    overlay var(--dur-base) allow-discrete, display var(--dur-base) allow-discrete;
+}
+
+.mhome__sheet[open] { transform: none; }
+
+@starting-style {
+  .mhome__sheet[open] { transform: translateY(100%); }
+}
+
+.mhome__sheet::backdrop {
+  background: rgba(0, 0, 0, 0);
+  transition: background-color var(--dur-base), overlay var(--dur-base) allow-discrete,
+    display var(--dur-base) allow-discrete;
+}
+
+.mhome__sheet[open]::backdrop { background: rgba(0, 0, 0, 0.4); }
+
+@starting-style {
+  .mhome__sheet[open]::backdrop { background: rgba(0, 0, 0, 0); }
+}
+
+.mhome__sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
+}
+
+.mhome__grip {
+  align-self: center;
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--rule);
+}
+
+.mhome__sheet-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: var(--tracking-tighter);
+  max-width: 22ch;
+}
+
+.mhome__email {
+  font-family: var(--font-hud);
+  font-size: 1.0625rem;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-color: var(--accent-signal);
+  text-underline-offset: 6px;
+}
+
+.mhome__sheet-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mhome__ghost {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--ink-primary);
+}
+
+.mhome__close {
+  width: 100%;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--bg-base);
+  color: var(--ink-secondary);
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mhome__slide { transform: none; transition: opacity 200ms; }
+  .mhome__sheet,
+  .mhome__sheet[open] { transform: none; transition: none; }
+}
+
+/* Phones on their side: image left, text right, so the card fits the short screen */
+@media (max-height: 500px) and (orientation: landscape) {
+  .mhome { --card-w: min(84vw, 44rem); }
+  .mhome__bar { padding-top: calc(8px + env(safe-area-inset-top)); padding-bottom: 6px; }
+  .mhome__card { flex-direction: row; height: 100%; }
+  .mhome__slide { height: 100%; }
+  .mhome__track { padding-block: 4px; }
+  .mhome__thumb { width: 44%; aspect-ratio: auto; }
+  .mhome__title { font-size: 1.375rem; }
+  .mhome__impact { -webkit-line-clamp: 3; line-clamp: 3; }
+  .mhome__dots { padding-top: 2px; }
+  .mhome__foot { padding-top: 4px; padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+  .mhome__cta { height: 44px; }
+}
