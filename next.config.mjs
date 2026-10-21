@@ -43,7 +43,6 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['framer-motion', '@react-three/drei'],
   },
-  transpilePackages: ['three'],
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },

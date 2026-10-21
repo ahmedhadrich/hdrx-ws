@@ -39,7 +39,7 @@ export const projects: Project[] = [
     tags: ['Three.js', 'WebGL', 'Game design', 'Solana'],
     impact:
       'Turned robot motion evaluation into a game: players pick the more natural humanoid move, and every vote trains a preference model.',
-    thumbnail: '/thumbs/aura-technologies.png',
+    thumbnail: '/thumbs/aura-technologies.webp',
     featured: false,
     link: 'https://aura-technologies.netlify.app',
     accent: '#7FA392',
@@ -53,7 +53,7 @@ export const projects: Project[] = [
     tags: ['Next.js', 'Web design', 'Product design', 'Framer Motion'],
     impact:
       'Building the vendor-neutral integration layer for physical automation — from use-case evaluation to deployed robotics.',
-    thumbnail: '/thumbs/birdwave.png',
+    thumbnail: '/thumbs/birdwave.webp',
     featured: false,
     link: 'https://birdwave.de',
     accent: '#E9B872',
@@ -67,7 +67,7 @@ export const projects: Project[] = [
     tags: ['Next.js', 'Product design', 'Web design', 'i18n'],
     impact:
       'Connects patients in Germany with clinical trials near them, from search and pre-screening to a first appointment at the study site.',
-    thumbnail: '/thumbs/medstudy-connect.png',
+    thumbnail: '/thumbs/medstudy-connect.webp',
     featured: false,
     link: 'https://medstudy-connect.com',
     accent: '#3B5BDB',
@@ -81,7 +81,7 @@ export const projects: Project[] = [
     tags: ['Next.js', 'Prisma', 'NeonDB', 'Product design'],
     impact:
       'Replaced fragmented spreadsheets and paper files with one DSGVO-compliant digital record, cutting school admin overhead by 30%.',
-    thumbnail: '/thumbs/edu-360.png',
+    thumbnail: '/thumbs/edu-360.webp',
     featured: true,
     link: 'https://www.edu-360.org',
     accent: '#2F6BFF',
@@ -95,7 +95,7 @@ export const projects: Project[] = [
     tags: ['Next.js', 'Framer Motion', 'Web design', 'Brand site'],
     impact:
       'Gave an industrial AI robotics company a brand site that reads as serious and established.',
-    thumbnail: '/thumbs/athenyx-robotics.png',
+    thumbnail: '/thumbs/athenyx-robotics.webp',
     featured: false,
     link: 'https://athenyxrobotics.com',
     accent: '#1C1C1E',
@@ -109,7 +109,7 @@ export const projects: Project[] = [
     tags: ['Brand identity', 'Logo design', 'Web design', 'Next.js'],
     impact:
       'Gave a fragmented Aachen robotics scene a single identity and home, uniting academic, startup, and student teams under one brand.',
-    thumbnail: '/thumbs/robotics-collective.png',
+    thumbnail: '/thumbs/robotics-collective.webp',
     featured: true,
     link: 'https://roboticscollective.org',
     accent: '#1A1A2E',
@@ -123,7 +123,7 @@ export const projects: Project[] = [
     tags: ['Webflow', 'Web design', 'Brand implementation', 'SEO'],
     impact:
       'Rolled out a unified brand and site architecture across 7 Southeast Asian markets, lifting organic SEO visibility and Google Ads reach region-wide.',
-    thumbnail: '/thumbs/pacific-cross.png',
+    thumbnail: '/thumbs/pacific-cross.webp',
     featured: false,
     link: 'https://www.pacificcross.com',
     accent: '#ea8837',

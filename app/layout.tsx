@@ -1,9 +1,8 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import { JetBrains_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/lib/hooks/useTheme';
-import { IntroProvider } from '@/lib/hooks/useIntro';
-import { SiteChrome } from '@/components/layout/SiteChrome';
+import { meta, site } from '@/content/copy';
 import './globals.css';
 
 const satoshi = localFont({
@@ -26,17 +25,46 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'HDRX',
-  description:
-    'Independent engineer and designer making products, systems, and tools that feel inevitable.',
-  metadataBase: new URL('https://hdrx.dev'),
+  metadataBase: new URL(site.url),
+  title: { default: meta.title, template: meta.titleTemplate },
+  description: meta.description,
+  applicationName: site.name,
+  authors: [{ name: site.owner, url: site.url }],
+  creator: site.owner,
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'HDRX',
-    description:
-      'Independent engineer and designer making products, systems, and tools that feel inevitable.',
     type: 'website',
+    siteName: site.name,
+    title: meta.title,
+    description: meta.ogDescription,
+    url: '/',
+    locale: 'en_GB',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: meta.title,
+    description: meta.ogDescription,
+  },
+  formatDetection: { telephone: false, email: false, address: false },
 };
+
+// Browser chrome matches the dark room around the MacBook
+export const viewport: Viewport = {
+  themeColor: '#0b0b0e',
+  colorScheme: 'dark light',
+};
+
+// Who the site is about, for search engines. A data block, not a script: CSP leaves it alone.
+const PERSON = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.owner,
+  url: site.url,
+  jobTitle: meta.jobTitle,
+  email: `mailto:${site.email}`,
+  address: { '@type': 'PostalAddress', addressCountry: 'DE' },
+  sameAs: site.social.filter((s) => !s.href.startsWith('mailto:')).map((s) => s.href),
+});
 
 const PREPAINT = `try{var d=document.documentElement;if(localStorage.getItem('hdrx-theme')==='dark')d.dataset.theme='dark';var s=JSON.parse(localStorage.getItem('hdrx-settings')||'null');if(s){var a={signal:'#87bba2',shore:'#e8865a',bone:'#e9dfc8'}[s.accent];if(a)d.style.setProperty('--accent-signal',a);var b=Math.min(1,Math.max(0.3,+s.brightness||1));d.style.setProperty('--screen-dim',((1-b)*0.85).toFixed(3));}}catch(e){}`;
 
@@ -47,16 +75,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Saved theme / accent / brightness before first paint, so there's no flash.
             Keys and values mirror lib/hooks/useTheme.tsx and components/screen/settings.ts. */}
         <script dangerouslySetInnerHTML={{ __html: PREPAINT }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: PERSON }} />
       </head>
       <body>
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <IntroProvider>
-          <ThemeProvider>
-            <SiteChrome>{children}</SiteChrome>
-          </ThemeProvider>
-        </IntroProvider>
+        {/* Each route brings its own frame: the home page is the MacBook, the rest use SiteChrome */}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

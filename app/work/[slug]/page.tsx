@@ -1,28 +1,40 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
 import { projects, type Project } from '@/content/projects';
 import { Container } from '@/components/ui/Container';
 import { CaseTimeline } from '@/components/sections/CaseTimeline';
+
+type Params = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
   return projects.filter((p) => p.caseStudy).map((p) => ({ slug: p.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const project = projects.find((p) => p.slug === params.slug);
-  if (!project) return {};
+// Only the case studies above exist; any other slug is a static 404
+export const dynamicParams = false;
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { slug } = await params;
+  const project = projects.find((p) => p.slug === slug);
+  if (!project?.caseStudy) return {};
   return {
-    title: `${project.title} — HDRX`,
+    // The root layout's template appends the name
+    title: project.title,
     description: project.impact,
+    alternates: { canonical: `/work/${slug}` },
+    openGraph: { title: project.title, description: project.impact, url: `/work/${slug}` },
   };
 }
 
-export default function ProjectPage({ params }: { params: { slug: string } }) {
-  const project = projects.find((p) => p.slug === params.slug);
+export default async function ProjectPage({ params }: Params) {
+  const { slug } = await params;
+  const project = projects.find((p) => p.slug === slug);
   if (!project?.caseStudy) notFound();
 
   const { caseStudy } = project;
-  const currentIdx = projects.findIndex((p) => p.slug === params.slug);
+  const currentIdx = projects.findIndex((p) => p.slug === slug);
   const next = projects[(currentIdx + 1) % projects.length];
 
   const col1 = caseStudy.subLinks.slice(0, Math.ceil(caseStudy.subLinks.length / 2));
@@ -35,12 +47,12 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
         <Container>
           <div className="flex flex-col gap-14">
             {/* Back link */}
-            <a
-              href="/#work"
+            <Link
+              href="/"
               className="eyebrow hover:text-ink-primary transition-colors duration-200 w-fit"
             >
               ← Selected work
-            </a>
+            </Link>
 
             {/* Type + year + H1 */}
             <div className="flex flex-col gap-4">
@@ -157,19 +169,19 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
       <section className="border-t border-rule pt-[7.5rem] pb-[7.5rem]">
         <Container>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
-            <a href="/#work" className="eyebrow hover:text-ink-primary transition-colors duration-200">
+            <Link href="/" className="eyebrow hover:text-ink-primary transition-colors duration-200">
               ← All projects
-            </a>
+            </Link>
             {next?.caseStudy && (
               <div className="text-right">
                 <span className="eyebrow block mb-4">Next project</span>
-                <a
+                <Link
                   href={`/work/${next.slug}`}
                   className="font-display font-light tracking-tighter text-ink-muted hover:text-ink-primary transition-colors duration-300 block"
                   style={{ fontSize: 'clamp(2rem, 4vw, 4rem)' }}
                 >
                   {next.title} →
-                </a>
+                </Link>
               </div>
             )}
           </div>
@@ -221,12 +233,13 @@ function MediaCard({ project }: { project: Project }) {
         border: '1px solid rgba(255,255,255,0.06)',
       }}
     >
-      <img
+      <Image
         src={project.thumbnail}
         alt={project.title}
-        width={640}
-        height={400}
-        className="w-full h-full object-contain p-10 md:p-16"
+        fill
+        sizes="(max-width: 1344px) 100vw, 1344px"
+        priority
+        className="object-contain p-10 md:p-16"
       />
 
       {/* Type + year badge */}

@@ -21,10 +21,6 @@ const SETTLE = 1e-4;
 // otherwise span the whole idle time and snap the fan halfway in one frame
 const IDLE_STEP = 1 / 60;
 
-// The webp next to each PNG (same 1600 x 1000, ~10x smaller). The PNGs stay the source
-// for next/image (CssCarousel, case-study pages), which re-encodes them anyway.
-const textureUrl = (thumbnail: string) => thumbnail.replace(/\.png$/, '.webp');
-
 interface Props {
   active: number;
   onPick: (index: number) => void;
@@ -167,7 +163,7 @@ function Fan({ active, onPick, dark }: Props) {
             ref={(el) => {
               images.current[i] = el;
             }}
-            url={textureUrl(p.thumbnail)}
+            url={p.thumbnail}
             scale={[W, H]}
             radius={0.035}
             transparent

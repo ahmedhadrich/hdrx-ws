@@ -21,7 +21,6 @@ uniform vec2 uRes;
 uniform float uTime;
 uniform vec2 uPointer;
 uniform float uDark;
-uniform float uRadius;
 uniform float uMotion;
 
 // Arithmetic hash (Dave Hoskins). The classic sin() hash bands into vertical
@@ -41,7 +40,6 @@ void main() {
   float aspect = uRes.x / uRes.y;
   vec2 uv = gl_FragCoord.xy / uRes;
   vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
-
 
   // No edge darkening or rim highlight: on the 3D display they read as flares down the sides
 
@@ -129,7 +127,6 @@ export function GlassShader({ dark, reducedMotion }: Props) {
       time: gl.getUniformLocation(prog, 'uTime'),
       pointer: gl.getUniformLocation(prog, 'uPointer'),
       dark: gl.getUniformLocation(prog, 'uDark'),
-      radius: gl.getUniformLocation(prog, 'uRadius'),
       motion: gl.getUniformLocation(prog, 'uMotion'),
     };
 
@@ -142,9 +139,7 @@ export function GlassShader({ dark, reducedMotion }: Props) {
       canvas.width = Math.max(1, Math.round(width * dpr));
       canvas.height = Math.max(1, Math.round(height * dpr));
       gl.viewport(0, 0, canvas.width, canvas.height);
-      // Match the CSS display corner radius, expressed in shader units (height = 1)
-      const radiusPx = parseFloat(getComputedStyle(canvas).borderTopLeftRadius) || 0;
-      gl.uniform1f(u.radius, height > 0 ? radiusPx / height : 0);
+      gl.uniform2f(u.res, canvas.width, canvas.height);
       if (reducedMotion) draw(0);
     };
 
@@ -158,16 +153,15 @@ export function GlassShader({ dark, reducedMotion }: Props) {
     const draw = (t: number) => {
       pointer.x += (pointer.tx - pointer.x) * 0.06;
       pointer.y += (pointer.ty - pointer.y) * 0.06;
-      gl.uniform2f(u.res, canvas.width, canvas.height);
       gl.uniform1f(u.time, t);
       gl.uniform2f(u.pointer, pointer.x, pointer.y);
       gl.uniform1f(u.dark, darkRef.current ? 1 : 0);
-      gl.uniform1f(u.motion, reducedMotion ? 0 : 1);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
 
+    gl.uniform1f(u.motion, reducedMotion ? 0 : 1);
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
     resize();
