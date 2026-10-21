@@ -837,7 +837,6 @@ a {
     box-shadow: none;
     padding-bottom: env(safe-area-inset-bottom);
   }
-  .mbp__head { padding-top: env(safe-area-inset-top); }
   .mbp__foot {
     flex-direction: column;
     align-items: center;
@@ -846,38 +845,38 @@ a {
   }
   .mbp__caption { padding-inline: 16px; min-height: 0; }
   /* Capped by height too, so tablets and phones on their side keep the fan in view */
-  .fan { --card-w: min(70cqi, 58dvh); }
+  .fan { --card-w: min(80cqi, 64dvh); }
   .hud { font-size: 11px; }
 }
 
-.mbp__cta {
+.mbp__contact {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: min(calc(100vw - 32px), 22rem);
-  height: 48px;
+  height: 44px;
+  padding: 0 24px;
   border-radius: 999px;
-  background: var(--ink-primary);
-  color: var(--bg-base);
-  font-size: 1rem;
-  font-weight: 500;
+  color: var(--ink-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
   -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur-fast), border-color var(--dur-fast);
 }
 
-.mbp__cta::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent-signal);
+.mbp__contact:active { border-color: var(--accent-signal); }
+
+[data-theme='light'] .mbp__contact {
+  background: rgba(245, 238, 226, 0.6);
+  border-color: rgba(14, 14, 18, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 8px 24px -12px rgba(0, 0, 0, 0.18);
 }
 
 /* Phones on their side: no room for the dock, keep the button */
 @media (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
   .mbp__foot .dock { display: none; }
   .mbp__foot { padding-block: 4px 10px; }
-  .mbp__cta { height: 40px; }
+  .mbp__contact { height: 40px; }
 }
 
 /* ---------- Dock ---------- */

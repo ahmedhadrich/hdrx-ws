@@ -397,8 +397,8 @@ export function MacbookStage() {
         </motion.div>
         {isMobile && (
           <motion.div variants={hudV} custom={4}>
-            <button type="button" className="mbp__cta" onClick={(e) => openPanel('contact', e.currentTarget)}>
-              {screen.contactCta}
+            <button type="button" className="mbp__contact hud" onClick={(e) => openPanel('contact', e.currentTarget)}>
+              {screen.contactLabel}
             </button>
           </motion.div>
         )}
