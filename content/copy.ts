@@ -60,6 +60,11 @@ export const screen = {
     display: 'Display',
     sound: 'Sound',
     timeOfDay: 'Time of day',
+    // Room light control under the plinth (components/screen/TimeControl)
+    roomLight: 'Room light',
+    time: 'Time',
+    orientation: 'Facing',
+    windowFaces: 'Window faces',
     // Quick jumps for checking the room's lighting; hours live in SettingsPanel (TIME_PRESETS)
     presets: {
       dawn: 'Dawn',

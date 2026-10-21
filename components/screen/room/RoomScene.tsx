@@ -115,45 +115,78 @@ function Atmosphere({ still }: { still: boolean }) {
 }
 
 // ---------- Time of day: sun arc, intensities and warmth follow the hour ----------
-// The accent palette stays the room's colour identity (bounce, horizon, lift); the hour sets
-// angle, strength and warmth. Night keeps a dim cool "moon" on the same shadow light, plus the lamp.
+// Like real daylight: morning is crisp, bright and blue-filled with a near-white sun, noon is
+// neutral and brightest, the afternoon warms into golden hour, then blue hour and night.
+// `warm` (0 cool daylight .. 1 the accent palette's warm look) decides how much of the accent's
+// golden bounce, horizon, dust and grade comes through; `hemiCol` is the sky fill's colour.
+// Night keeps a dim cool "moon" on the same shadow light, plus the lamp.
 const SUN_R = 24;
 const DEG = Math.PI / 180;
-const NUM_KEYS = ['elev', 'az', 'sunI', 'hemiI', 'hemiMix', 'ambI', 'fillI', 'lampI', 'dustA', 'sunMix', 'skyK'] as const;
+const NUM_KEYS = ['elev', 'az', 'sunI', 'hemiI', 'hemiMix', 'ambI', 'fillI', 'lampI', 'dustA', 'sunMix', 'skyK', 'warm'] as const;
 type NumKey = (typeof NUM_KEYS)[number];
 type Tod = Record<NumKey, number> & { sunCol: THREE.Color; hemiCol: THREE.Color };
 type Keyframe = Tod & { h: number };
 
 const MOON = c('#8fa8d8');
 const NIGHT_FILL = c('#6f86b8');
+// Clear morning / midday sky fill
+const SKY_MORNING = c('#9cc1ff');
+const SKY_NOON = c('#b4cdfa');
+// Cool daylight counterparts of the accent palette's warm colours (warm = 0)
+const COOL = {
+  bounce: c('#dfe7f2'),
+  horizon: c('#cfe0f5').multiplyScalar(0.9),
+  top: c('#5f86c4').multiplyScalar(0.7),
+  dust: c('#f2f6ff'),
+  lift: new THREE.Color(0.97, 1.0, 1.04),
+};
 // elev/az in degrees (az: + is toward the camera); sunMix = how much the accent tints the sun
 function kf(
   h: number, elev: number, az: number, sunI: number, sunCol: THREE.Color, hemiI: number, hemiMix: number,
   ambI: number, fillI: number, lampI: number, dustA: number, sunMix: number, skyK: number,
+  warm: number, hemiCol: THREE.Color,
 ): Keyframe {
-  return { h, elev, az, sunI, sunCol, hemiI, hemiMix, ambI, fillI, lampI, dustA, sunMix, skyK, hemiCol: NIGHT_FILL };
+  return { h, elev, az, sunI, sunCol, hemiI, hemiMix, ambI, fillI, lampI, dustA, sunMix, skyK, warm, hemiCol };
 }
 const KEYS: Keyframe[] = [
-  //  hour elev  az  sunI  sunCol          hemiI mix  amb  fill lamp dust sunMix sky
-  kf(0, 30, 20, 0.9, MOON, 0.6, 0.75, 0.2, 0.5, 14, 0.6, 0.05, 0.1),
-  kf(5, 30, 20, 0.9, MOON, 0.6, 0.75, 0.2, 0.5, 14, 0.6, 0.05, 0.1),
-  kf(5.5, 26, 20, 0, MOON, 0.5, 0.6, 0.16, 0.6, 13, 0.6, 0.1, 0.15),
-  kf(5.9, 2, 18, 0, c('#ff9a6a'), 0.42, 0.4, 0.12, 0.8, 11, 0.8, 0.5, 0.25),
-  kf(6.4, 5, 18, 1.0, c('#ffb98a'), 0.42, 0.3, 0.1, 0.9, 9, 1.0, 0.5, 0.35),
-  kf(9, 26, 22, 3.2, c('#ffe9c8'), 0.75, 0, 0.1, 0.8, 2, 0.8, 0.35, 0.55),
-  kf(13, 42, 26, 3.2, c('#fff4e0'), 0.85, 0, 0.1, 0.6, 0.6, 0.6, 0.25, 0.6),
-  kf(17.5, 21, 22, 3.6, c('#ffd2a0'), 0.6, 0, 0.12, 1, 7, 1, 1, 0.5),
-  kf(19.5, 3, 30, 1.1, c('#ff9a5a'), 0.45, 0.3, 0.12, 1, 10, 1, 0.6, 0.3),
-  kf(20.2, 2, 30, 0, c('#ff8a50'), 0.45, 0.5, 0.14, 0.9, 12, 0.8, 0.4, 0.2),
-  kf(20.7, 26, 20, 0, MOON, 0.55, 0.65, 0.18, 0.6, 13, 0.6, 0.1, 0.12),
-  kf(21.5, 30, 20, 0.9, MOON, 0.6, 0.75, 0.2, 0.5, 14, 0.6, 0.05, 0.1),
-  kf(24, 30, 20, 0.9, MOON, 0.6, 0.75, 0.2, 0.5, 14, 0.6, 0.05, 0.1),
+  //  hour elev  az  sunI  sunCol          hemiI mix  amb  fill lamp dust sunMix sky  warm sky fill
+  kf(0, 30, 20, 0.9, MOON, 0.6, 0.75, 0.2, 0.5, 14, 0.6, 0.05, 0.1, 0.25, NIGHT_FILL),
+  kf(5, 30, 20, 0.9, MOON, 0.6, 0.75, 0.2, 0.5, 14, 0.6, 0.05, 0.1, 0.25, NIGHT_FILL),
+  kf(5.5, 26, 20, 0, MOON, 0.5, 0.6, 0.16, 0.6, 13, 0.6, 0.1, 0.15, 0.3, NIGHT_FILL),
+  // Sunrise: the low sun itself is warm, everything it doesn't touch is blue
+  kf(5.9, 2, 18, 0, c('#ff9a6a'), 0.42, 0.5, 0.12, 0.8, 11, 0.8, 0.5, 0.25, 0.55, c('#8fa3d8')),
+  kf(6.4, 5, 18, 1.0, c('#ffc29a'), 0.55, 0.6, 0.1, 0.9, 9, 1.0, 0.35, 0.4, 0.4, c('#9db8ec')),
+  // Morning: crisp, bright, blue-filled; the sun is near white
+  kf(9, 26, 22, 3.5, c('#f5f7ff'), 0.95, 0.75, 0.12, 0.8, 1, 0.7, 0.05, 0.65, 0.05, SKY_MORNING),
+  // Noon: neutral and brightest
+  kf(13, 42, 26, 3.9, c('#fffaf2'), 1.0, 0.6, 0.12, 0.7, 0.4, 0.6, 0.05, 0.7, 0.2, SKY_NOON),
+  // Afternoon warming into golden hour (the accent palette in full)
+  kf(15.5, 32, 24, 3.7, c('#ffefd8'), 0.85, 0.35, 0.12, 0.85, 2, 0.8, 0.4, 0.62, 0.55, c('#b8c6dc')),
+  kf(17.5, 21, 22, 3.6, c('#ffd2a0'), 0.6, 0.1, 0.12, 1, 7, 1, 1, 0.5, 1, c('#aab2c2')),
+  kf(19.5, 3, 30, 1.1, c('#ff9a5a'), 0.45, 0.3, 0.12, 1, 10, 1, 0.6, 0.3, 1, c('#9aa6c8')),
+  // Blue hour
+  kf(20.2, 2, 30, 0, c('#ff8a50'), 0.45, 0.55, 0.14, 0.9, 12, 0.8, 0.4, 0.2, 0.6, c('#7f92c8')),
+  kf(20.7, 26, 20, 0, MOON, 0.55, 0.65, 0.18, 0.6, 13, 0.6, 0.1, 0.12, 0.3, NIGHT_FILL),
+  kf(21.5, 30, 20, 0.9, MOON, 0.6, 0.75, 0.2, 0.5, 14, 0.6, 0.05, 0.1, 0.25, NIGHT_FILL),
+  kf(24, 30, 20, 0.9, MOON, 0.6, 0.75, 0.2, 0.5, 14, 0.6, 0.05, 0.1, 0.25, NIGHT_FILL),
 ];
 
-const newTod = (): Tod => ({ ...KEYS[7], sunCol: KEYS[7].sunCol.clone(), hemiCol: KEYS[7].hemiCol.clone() });
+// Starts on golden hour (the settings default); TimeOfDay snaps to the real hour on mount
+const START = KEYS.find((k) => k.h === 17.5)!;
+const newTod = (): Tod => ({ ...START, sunCol: START.sunCol.clone(), hemiCol: START.hemiCol.clone() });
 // Live (eased) and target state; module-level like `atmo` so every component reads this frame's values
 const tod: Tod = newTod();
 const todTarget: Tod = newTod();
+
+// The accent palette's warm colours pulled toward cool daylight by the hour's `warm`:
+// recomputed every frame by TimeOfDay, read by the lights, sky, dust and film grade
+const lit = {
+  bounce: new THREE.Color(),
+  horizon: new THREE.Color(),
+  top: new THREE.Color(),
+  dust: new THREE.Color(),
+  lift: new THREE.Color(1, 1, 1),
+};
 
 function sampleTod(hour: number, out: Tod) {
   const h = Math.min(Math.max(hour, 0), 24);
@@ -169,13 +202,16 @@ function sampleTod(hour: number, out: Tod) {
 }
 
 // Eases toward the hour's target (~500 ms); mounted after Atmosphere. Still: snap, draw one frame.
+// The room's orientation turns the sun's azimuth, so it eases along with the hour.
 function TimeOfDay({ still }: { still: boolean }) {
   const hour = useHour();
+  const { orientation } = useScreenSettings();
   const { invalidate } = useThree();
   const first = useRef(true);
 
   useEffect(() => {
     sampleTod(hour, todTarget);
+    todTarget.az += orientation;
     if (still || first.current) {
       for (const k of NUM_KEYS) tod[k] = todTarget[k];
       tod.sunCol.copy(todTarget.sunCol);
@@ -183,13 +219,19 @@ function TimeOfDay({ still }: { still: boolean }) {
       first.current = false;
     }
     invalidate();
-  }, [hour, still, invalidate]);
+  }, [hour, orientation, still, invalidate]);
 
   useFrame((_, dt) => {
     const k = still ? 1 : 1 - Math.exp(-dt * 6);
     for (const key of NUM_KEYS) tod[key] += (todTarget[key] - tod[key]) * k;
     tod.sunCol.lerp(todTarget.sunCol, k);
     tod.hemiCol.lerp(todTarget.hemiCol, k);
+    // Atmosphere (mounted first) has already eased `atmo` this frame
+    lit.bounce.copy(COOL.bounce).lerp(atmo.bounce, tod.warm);
+    lit.horizon.copy(COOL.horizon).lerp(atmo.horizon, tod.warm);
+    lit.top.copy(COOL.top).lerp(atmo.top, tod.warm);
+    lit.dust.copy(COOL.dust).lerp(atmo.dust, tod.warm);
+    lit.lift.copy(COOL.lift).lerp(atmo.lift, tod.warm);
   });
   return null;
 }
@@ -258,7 +300,7 @@ function Lights() {
     }
     for (const f of [floorFill.current, wallFill.current]) {
       if (!f) continue;
-      f.color.copy(atmo.bounce);
+      f.color.copy(lit.bounce);
       f.intensity = 5 * tod.fillI;
     }
     if (hemi.current) {
@@ -318,12 +360,13 @@ function Sky() {
     [],
   );
   useFrame(() => {
-    uniforms.uTop.value.copy(atmo.top);
-    uniforms.uHorizon.value.copy(atmo.horizon);
+    uniforms.uTop.value.copy(lit.top);
+    uniforms.uHorizon.value.copy(lit.horizon);
     uniforms.uSun.value.copy(atmo.sun);
-    // Night: sky sinks toward deep blue and dims; the sun glow follows the sun's arc
-    uniforms.uTop.value.lerp(NIGHT_FILL, tod.hemiMix * 0.5).multiplyScalar(0.6 + tod.skyK);
-    uniforms.uHorizon.value.lerp(NIGHT_FILL, tod.hemiMix * 0.6);
+    // The sky leans toward the hour's fill colour (clear blue by day, deep blue at night) and
+    // dims at night; the sun glow follows the sun's arc
+    uniforms.uTop.value.lerp(tod.hemiCol, tod.hemiMix * 0.5).multiplyScalar(0.6 + tod.skyK);
+    uniforms.uHorizon.value.lerp(tod.hemiCol, tod.hemiMix * 0.6);
     uniforms.uExposure.value = 0.15 + tod.skyK;
     const e = tod.elev * DEG;
     const az = tod.az * DEG;
@@ -634,7 +677,7 @@ function Dust() {
   );
   useFrame((_, dt) => {
     uniforms.uTime.value += dt;
-    uniforms.uColor.value.copy(atmo.dust).multiplyScalar(tod.dustA);
+    uniforms.uColor.value.copy(lit.dust).multiplyScalar(tod.dustA);
   });
   return (
     <points>
@@ -681,7 +724,7 @@ function FilmPass({ still }: { still: boolean }) {
       uTime: { value: 0 },
       uGrain: { value: 0.045 },
       uFringe: { value: 0.008 },
-      uLift: { value: atmo.lift },
+      uLift: { value: lit.lift },
     }),
     [target],
   );
