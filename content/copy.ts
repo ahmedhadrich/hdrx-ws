@@ -13,15 +13,15 @@ export const site = {
 // Page titles, search snippets and link previews (app/layout.tsx, app/opengraph-image.tsx).
 // Brand-first: HDRX and the work, no personal name. Plain words, read in a Google result or a Slack unfurl.
 export const meta = {
-  title: 'HDRX · Product engineering and design',
+  title: 'HDRX',
   titleTemplate: '%s · HDRX',
   description:
-    'HDRX designs and builds digital products, from first sketch to shipped code. Robotics brands, clinical-trial search, education platforms and interactive 3D.',
+    'I design and build digital products, from first sketch to shipped code. Robotics brands, clinical-trial search, education platforms and interactive 3D.',
   // Shorter line for link previews, where the title already says what
   ogDescription: 'Messy briefs in, shipped products out. Robotics, health, education, and the odd 3D experiment.',
-  ogAlt: 'HDRX, product engineering and design',
+  ogAlt: 'Ahmed Hadrich, product engineering, software development and design',
   // Bottom line of the link preview card
-  disciplines: 'Product · Brand · Interactive 3D',
+  disciplines: 'Product . Websites . Software . Brand . Interactive 3D',
   notFound: 'Page not found',
 } as const;
 
