@@ -4,6 +4,7 @@ import { Canvas, createPortal, useFrame, useThree } from '@react-three/fiber';
 import { useFBO } from '@react-three/drei';
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import * as THREE from 'three';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { parallax } from './parallax';
 import { useHour, useScreenSettings, type Accent } from '../settings';
 import { dustFragment, dustVertex, postFragment, postVertex, skyFragment, skyVertex } from './shaders';
@@ -415,6 +416,27 @@ function rectHole(x0: number, y0: number, x1: number, y1: number) {
   return p;
 }
 
+function circleHole(x: number, y: number, r: number) {
+  const p = new THREE.Path();
+  p.absarc(x, y, r, 0, Math.PI * 2, true);
+  return p;
+}
+
+// Smooth river stone: a sphere pushed in and out by a few sines (welded so it shades smooth)
+function stoneGeometry(seed: number) {
+  const geo = mergeVertices(new THREE.IcosahedronGeometry(1, 4));
+  const pos = geo.attributes.position;
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const n = Math.sin(v.x * 2.1 + seed) * Math.cos(v.y * 1.7 - seed) * 0.12 + Math.sin(v.z * 4.3 + seed * 2.0) * 0.04;
+    v.multiplyScalar(1 + n);
+    pos.setXYZ(i, v.x, v.y, v.z);
+  }
+  geo.computeVertexNormals();
+  return geo;
+}
+
 // Seeded PRNG (mulberry32): same layout on every render, keeps the hooks pure
 function seeded(seed: number) {
   let a = seed >>> 0;
@@ -511,7 +533,9 @@ const WIN = { x0: -6.5, x1: 6.5, y0: 0.5, y1: 9.5 };
 function Architecture() {
   const geos = useMemo(
     () => ({
-      back: wallGeometry(36, 15, []),
+      // Round oculus high on the back wall, as in the first room: a window on the sky's colour
+      back: wallGeometry(36, 15, [circleHole(-4.2, 8.6, 1.3)]),
+      pebble: stoneGeometry(2.7),
       side: wallGeometry(20, 15, [rectHole(WIN.x0, WIN.y0, WIN.x1, WIN.y1)]),
     }),
     [],
@@ -539,15 +563,25 @@ function Architecture() {
     () => new THREE.MeshStandardMaterial({ color: '#b8a687', roughness: 0.9, metalness: 0 }),
     [],
   );
-  const pot = useMemo(() => new THREE.MeshStandardMaterial({ color: BONE, roughness: 0.8 }), []);
-  const leaf = useMemo(() => new THREE.MeshStandardMaterial({ color: '#6c8f7c', roughness: 0.7, side: THREE.DoubleSide }), []);
+  const stone = useMemo(() => new THREE.MeshStandardMaterial({ color: '#b9ab92', roughness: 1, metalness: 0 }), []);
+  const ceramic = useMemo(() => new THREE.MeshStandardMaterial({ color: BONE, roughness: 0.55, metalness: 0 }), []);
 
   const bars = [-3.25, 0, 3.25];
-  const leaves = [0, 1, 2, 3, 4, 5, 6].map((i) => {
-    const a = (i / 7) * Math.PI * 2;
-    const lean = 0.35 + (i % 3) * 0.18;
-    return { a, lean, h: 1.0 + (i % 4) * 0.28 };
-  });
+  const vase = useMemo(
+    () =>
+      lathe([
+        [0, 0],
+        [0.22, 0],
+        [0.34, 0.25],
+        [0.36, 0.5],
+        [0.22, 0.85],
+        [0.13, 1.05],
+        [0.15, 1.15],
+        [0.12, 1.15],
+        [0.1, 1.05],
+      ]),
+    [],
+  );
 
   return (
     <group>
@@ -588,29 +622,151 @@ function Architecture() {
         <boxGeometry args={[6, 0.2, 2.7]} />
       </mesh>
 
-      {/* Low bench against the back wall, with one plant */}
+      {/* Low bench against the back wall: plant, a pebble, a few books */}
       <mesh material={wood} position={[7.2, 0.5, -8.3]} castShadow receiveShadow>
         <boxGeometry args={[7, 1, 1.3]} />
       </mesh>
-      <group position={[9.0, 1, -8.3]}>
-        <mesh material={pot} position={[0, 0.5, 0]} castShadow receiveShadow>
-          <cylinderGeometry args={[0.5, 0.38, 1, 24]} />
+      <Plant position={[9.0, 1, -8.3]} />
+      <mesh geometry={geos.pebble} material={stone} position={[7.75, 1.1, -8.05]} scale={[0.34, 0.16, 0.26]} castShadow receiveShadow />
+      <Books position={[5.3, 1, -8.3]} />
+
+      {/* Stepped plaster column with a vase, back left, where the window bars stripe the wall */}
+      <group position={[-7.2, 0, -6.6]}>
+        <mesh material={plaster} position={[0, 1.6, 0]} castShadow receiveShadow>
+          <boxGeometry args={[1.5, 3.2, 1.5]} />
         </mesh>
-        {leaves.map((l) => (
-          <mesh
-            key={l.a}
-            material={leaf}
-            position={[Math.sin(l.a) * 0.18, 1.0 + l.h * 0.5, Math.cos(l.a) * 0.18]}
-            rotation={[Math.cos(l.a) * l.lean, 0, -Math.sin(l.a) * l.lean]}
-            scale={[0.2, l.h, 0.06]}
-            castShadow
-          >
-            <sphereGeometry args={[1, 12, 8]} />
-          </mesh>
-        ))}
+        <mesh material={plaster} position={[0, 3.55, 0]} castShadow receiveShadow>
+          <boxGeometry args={[1.05, 0.7, 1.05]} />
+        </mesh>
+        <mesh geometry={vase} material={ceramic} position={[0, 3.9, 0]} scale={1.1} castShadow receiveShadow />
       </group>
 
       <Pendant />
+    </group>
+  );
+}
+
+// Lathe from [radius, height] pairs (pot, vase)
+function lathe(profile: [number, number][], segments = 40) {
+  return new THREE.LatheGeometry(
+    profile.map(([x, y]) => new THREE.Vector2(x, y)),
+    segments,
+  );
+}
+
+// One sansevieria-style blade: tapered to a point, V-creased along the midrib, curving outward
+// as it rises. Built in leaf space (y up the blade, z outward); vertex colours darken the base.
+const LEAF_BASE = new THREE.Color('#3f5f4c');
+const LEAF_TIP = new THREE.Color('#86ab92');
+function leafGeometry(len: number, width: number, droop: number) {
+  const rows = 14;
+  const pos: number[] = [];
+  const col: number[] = [];
+  const idx: number[] = [];
+  const tmp = new THREE.Color();
+  for (let i = 0; i <= rows; i++) {
+    const t = i / rows;
+    // Narrow stem, widest a third of the way up, sharp tip
+    const w = width * (0.25 + 0.75 * Math.sin(Math.PI * Math.min(1, t * 1.5) * 0.5)) * (1 - Math.pow(t, 2.2));
+    const y = len * t;
+    const z = droop * len * t * t;
+    // Edges sit forward of the midrib: the channel
+    const crease = w * 0.45;
+    pos.push(-w, y, z + crease, 0, y, z, w, y, z + crease);
+    tmp.copy(LEAF_BASE).lerp(LEAF_TIP, Math.pow(t, 0.7));
+    const mid = tmp.clone().multiplyScalar(0.88);
+    col.push(tmp.r, tmp.g, tmp.b, mid.r, mid.g, mid.b, tmp.r, tmp.g, tmp.b);
+    if (i < rows) {
+      const a = i * 3;
+      const b = a + 3;
+      idx.push(a, b, a + 1, a + 1, b, b + 1, a + 1, b + 1, a + 2, a + 2, b + 1, b + 2);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+// Potted sansevieria: a fan of creased blades in a tapered bone pot with a rolled rim
+function Plant({ position }: { position: [number, number, number] }) {
+  const { pot, soil, leaves, leafMat, potMat, soilMat } = useMemo(() => {
+    const rand = seeded(31);
+    const count = 13;
+    const leaves = Array.from({ length: count }, (_, i) => {
+      // Golden-angle spiral: no two blades line up, the tall ones in the middle
+      const a = i * 2.39996 + rand() * 0.3;
+      const inner = 1 - i / count;
+      const len = 0.9 + inner * 1.1 + rand() * 0.25;
+      return {
+        geo: leafGeometry(len, 0.11 + rand() * 0.05, 0.08 + (1 - inner) * 0.35),
+        a,
+        lean: 0.08 + (1 - inner) * 0.45 + rand() * 0.08,
+        twist: (rand() - 0.5) * 0.8,
+        r: 0.04 + (1 - inner) * 0.2,
+      };
+    });
+    return {
+      leaves,
+      pot: lathe([
+        [0, 0],
+        [0.34, 0],
+        [0.36, 0.04],
+        [0.46, 0.86],
+        [0.5, 0.9],
+        [0.5, 0.96],
+        [0.46, 0.98],
+        [0.43, 0.9],
+        [0.42, 0.84],
+      ]),
+      soil: new THREE.CircleGeometry(0.42, 32),
+      leafMat: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, side: THREE.DoubleSide }),
+      // Double-sided: the lathe's inner wall faces away from its outer normals
+      potMat: new THREE.MeshStandardMaterial({ color: BONE, roughness: 0.6, side: THREE.DoubleSide }),
+      soilMat: new THREE.MeshStandardMaterial({ color: '#2b2119', roughness: 1 }),
+    };
+  }, []);
+
+  return (
+    <group position={position}>
+      <mesh geometry={pot} material={potMat} castShadow receiveShadow />
+      <mesh geometry={soil} material={soilMat} position={[0, 0.85, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow />
+      {leaves.map((l, i) => (
+        // Yaw to the blade's direction, lean it out, then a little twist about its own axis
+        <group key={i} position={[Math.sin(l.a) * l.r, 0.84, Math.cos(l.a) * l.r]} rotation={[0, l.a, 0]}>
+          <mesh geometry={l.geo} material={leafMat} rotation={[l.lean, l.twist, 0]} castShadow receiveShadow />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+// A short stack of books, spines out, slightly askew
+function Books({ position }: { position: [number, number, number] }) {
+  const books = useMemo(
+    () =>
+      [
+        { w: 1.1, h: 0.14, d: 0.8, color: '#d9cdb4', yaw: 0.04 },
+        { w: 1.0, h: 0.11, d: 0.74, color: '#7d9483', yaw: -0.08 },
+        { w: 0.94, h: 0.16, d: 0.7, color: '#a8664a', yaw: 0.12 },
+      ].map((b) => ({ ...b, mat: new THREE.MeshStandardMaterial({ color: b.color, roughness: 0.85 }) })),
+    [],
+  );
+  let y = 0;
+  return (
+    <group position={position}>
+      {books.map((b, i) => {
+        y += b.h / 2;
+        const at = y;
+        y += b.h / 2;
+        return (
+          <mesh key={i} material={b.mat} position={[0, at, 0]} rotation={[0, b.yaw, 0]} castShadow receiveShadow>
+            <boxGeometry args={[b.w, b.h, b.d]} />
+          </mesh>
+        );
+      })}
     </group>
   );
 }
