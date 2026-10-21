@@ -36,14 +36,12 @@ export default function OpengraphImage() {
         </svg>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -3, lineHeight: 1 }}>{site.owner}</div>
+          <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -3, lineHeight: 1 }}>{site.name}</div>
           <div style={{ fontSize: 40, color: INK_2, lineHeight: 1.3, maxWidth: 900 }}>{meta.ogDescription}</div>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 28, color: INK_2 }}>
-          <span>
-            {meta.jobTitle} · {meta.location}
-          </span>
+          <span>{meta.disciplines}</span>
           <span style={{ color: SAGE }}>{site.url.replace('https://', '')}</span>
         </div>
       </div>
