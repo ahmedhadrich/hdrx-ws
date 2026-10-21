@@ -13,6 +13,7 @@ const BG = '#0b0b0e';
 const INK = '#f4f4ee';
 const INK_2 = '#a8a8b0';
 const SAGE = '#87bba2';
+const RING = 'rgba(244, 244, 238, 0.22)';
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -29,10 +30,10 @@ export default function OpengraphImage() {
           color: INK,
         }}
       >
-        {/* Same mark as the favicon: black H on a sage disc */}
+        {/* Same mark as the favicon: white H on a black disc, ringed so it holds on the black card */}
         <svg width="96" height="96" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="50" fill={SAGE} />
-          <path transform="translate(50 50) scale(0.6) translate(-50 -50)" d={H_PATH} fill={BG} />
+          <circle cx="50" cy="50" r="49" fill={BG} stroke={RING} strokeWidth="2" />
+          <path transform="translate(50 50) scale(0.6) translate(-50 -50)" d={H_PATH} fill={INK} />
         </svg>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
