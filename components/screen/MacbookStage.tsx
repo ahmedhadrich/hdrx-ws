@@ -12,6 +12,7 @@ import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
 import { EASE_OUT_SOFT } from '@/lib/utils/motion';
 import { cn } from '@/lib/utils/cn';
+import { MOBILE_QUERY } from '@/lib/utils/device';
 import { GlassShader } from './GlassShader';
 import { CssCarousel } from './CssCarousel';
 import { InfoPanel } from './InfoPanel';
@@ -62,8 +63,9 @@ export function MacbookStage() {
   const router = useRouter();
   const { theme } = useTheme();
   const reducedMotion = useReducedMotion();
-  const isCoarse = useMediaQuery('(pointer: coarse)');
-  const isNarrow = useMediaQuery('(max-width: 767px)');
+  // Phones and tablets: just the screen, full-bleed. No MacBook, room, blobs or glass shader,
+  // and the CSS fan instead of WebGL, so nothing renders between interactions.
+  const isMobile = useMediaQuery(MOBILE_QUERY);
 
   const [mounted, setMounted] = useState(false);
   const [webgl, setWebgl] = useState(false);
@@ -85,9 +87,8 @@ export function MacbookStage() {
   const lastTrigger = useRef<HTMLElement | null>(null);
 
   const dark = theme === 'dark';
-  const useFallback = !webgl || isCoarse || isNarrow || reducedMotion;
-  // Phones and touch keep the soft blobs: the 3D room is a desktop treat
-  const showRoom = mounted && webgl && !isCoarse && !isNarrow;
+  const useFallback = !webgl || isMobile || reducedMotion;
+  const showRoom = mounted && webgl && !isMobile;
   const rootRef = useRef<HTMLDivElement>(null);
   const project = projects[active];
   const target = projectTarget(project);
@@ -114,8 +115,8 @@ export function MacbookStage() {
     }
     setWebgl(hasWebgl);
 
-    // Phones have no room for a laptop: flat full-screen glass
-    if (!hasWebgl || window.matchMedia('(max-width: 767px)').matches) {
+    // Phones and tablets: the bare screen. No WebGL: the flat laptop.
+    if (!hasWebgl || window.matchMedia(MOBILE_QUERY).matches) {
       fallBackToFlat();
       return;
     }
@@ -294,7 +295,8 @@ export function MacbookStage() {
       el.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointerup', onUp);
     };
-  }, [panel, go]);
+    // mode: the stage only exists once the screen is mounted (flat or 3d), not on first render
+  }, [panel, go, mode]);
 
   const on = boot === 'on';
   const hudV = reducedMotion ? variants.reduced : variants.hud;
@@ -393,6 +395,13 @@ export function MacbookStage() {
         <motion.div variants={hudV} custom={3}>
           <Dock tags={project.tags} reducedMotion={reducedMotion} />
         </motion.div>
+        {isMobile && (
+          <motion.div variants={hudV} custom={4}>
+            <button type="button" className="mbp__cta" onClick={(e) => openPanel('contact', e.currentTarget)}>
+              {screen.contactCta}
+            </button>
+          </motion.div>
+        )}
       </motion.footer>
 
       {/* ---------- Boot ---------- */}
@@ -417,7 +426,7 @@ export function MacbookStage() {
       </AnimatePresence>
 
       {/* ---------- Glass surface + panels ---------- */}
-      <GlassShader dark={dark} reducedMotion={reducedMotion} />
+      {!isMobile && <GlassShader dark={dark} reducedMotion={reducedMotion} />}
 
       <AnimatePresence>
         {panel && <InfoPanel key={panel} id={panel} onClose={closePanel} reducedMotion={reducedMotion} />}
@@ -432,6 +441,7 @@ export function MacbookStage() {
             While loading (and in 3D) this layer stays empty, just the dark room colour,
             so the world can fade in from black instead of cutting in over the blobs. */}
         {mode === 'flat' &&
+          !isMobile &&
           (showRoom ? (
             <RoomScene still={reducedMotion} />
           ) : (

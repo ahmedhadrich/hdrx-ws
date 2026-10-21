@@ -46,7 +46,7 @@ export function CssCarousel({ active, onPick }: Props) {
               src={p.thumbnail}
               alt=""
               fill
-              sizes="(max-width: 768px) 70vw, 32vw"
+              sizes="(max-width: 768px) 70vw, (pointer: coarse) 60vw, 32vw"
               className="fan__img"
               priority={i === active}
             />
