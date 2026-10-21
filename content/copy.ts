@@ -1,12 +1,29 @@
 export const site = {
   name: 'HDRX',
   shortName: 'HDRX',
+  owner: 'Ahmed Hadrich',
+  url: 'https://hdrx.dev',
   email: 'hadrichahmed01@gmail.com',
   social: [
     { label: 'GitHub', href: 'https://github.com/ahmedhadrich' },
     { label: 'LinkedIn', href: 'https://linkedin.com/in/ahmed-hadrich' },
     { label: 'Email', href: 'mailto:hadrichahmed01@gmail.com' },
   ],
+} as const;
+
+// Page titles, search snippets and link previews (app/layout.tsx, app/opengraph-image.tsx).
+// Written to be read in a Google result or a Slack unfurl: first person, plain words.
+export const meta = {
+  title: 'Ahmed Hadrich · Engineer and designer',
+  titleTemplate: '%s · Ahmed Hadrich',
+  description:
+    'I’m Ahmed, an engineer and designer in Germany. I turn messy briefs into products that ship, from robotics brands to clinical-trial search.',
+  // Shorter line for link previews, where the title already says who
+  ogDescription: 'Messy briefs in, shipped products out. Robotics, health, education, and the odd 3D experiment.',
+  ogAlt: 'Ahmed Hadrich, engineer and designer',
+  jobTitle: 'Engineer and designer',
+  location: 'Germany',
+  notFound: 'Page not found',
 } as const;
 
 // Heading of the Contact panel on the home screen (components/screen/InfoPanel)
@@ -23,7 +40,8 @@ export const footer = {
 
 // Single-screen home: everything lives on one glass MacBook display.
 export const screen = {
-  brand: 'HDRX',
+  // Visually hidden page heading: what screen readers and search engines take the page to be
+  heading: 'Ahmed Hadrich, engineer and designer',
   panels: [
     { id: 'contact', label: 'Contact' },
   ],
@@ -42,6 +60,11 @@ export const screen = {
     display: 'Display',
     sound: 'Sound',
     timeOfDay: 'Time of day',
+    // Room light control under the plinth (components/screen/TimeControl)
+    roomLight: 'Room light',
+    time: 'Time',
+    orientation: 'Facing',
+    windowFaces: 'Window faces',
     // Quick jumps for checking the room's lighting; hours live in SettingsPanel (TIME_PRESETS)
     presets: {
       dawn: 'Dawn',

@@ -5,10 +5,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { screen } from '@/content/copy';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 import { SettingsPanel } from './SettingsPanel';
+import { H_PATH } from '@/components/ui/mark';
 import './MenuBar.css';
-
-// Same H as the backlit logo on the lid
-export const H_PATH = 'M22 10h16v32h24V10h16v80H62V56H38v34H22z';
 
 interface Props {
   variants: Variants;
@@ -31,8 +29,8 @@ export function MenuBar({ variants, onContact }: Props) {
         <svg viewBox="0 0 100 100" className="menubar__logo" aria-hidden="true">
           <path d={H_PATH} />
         </svg>
-        {/* The brand stays the page heading for screen readers and SEO */}
-        <h1 className="sr-only">{screen.brand}</h1>
+        {/* The page heading for screen readers and search engines */}
+        <h1 className="sr-only">{screen.heading}</h1>
         <button
           type="button"
           className="menubar__app menubar__btn menubar__item"

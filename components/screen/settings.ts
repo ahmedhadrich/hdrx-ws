@@ -23,13 +23,24 @@ export interface ScreenSettings {
   timeAuto: boolean;
   /** Manual time of day in hours, 0 – 24 (used when timeAuto is off) */
   hour: number;
+  /** Which way the room faces, in degrees off its default (window facing due west). Swings the sun round the room */
+  orientation: number;
 }
 
 // Also read by the pre-paint script in app/layout.tsx
 export const SETTINGS_KEY = 'hdrx-settings';
 export const MIN_BRIGHTNESS = 0.3;
+// Past this the sun runs nearly parallel to the window wall and stops coming in
+export const MAX_ORIENTATION = 45;
 
-const DEFAULTS: ScreenSettings = { accent: 'signal', brightness: 1, volume: 0.6, timeAuto: true, hour: 17.5 };
+const DEFAULTS: ScreenSettings = {
+  accent: 'signal',
+  brightness: 1,
+  volume: 0.6,
+  timeAuto: true,
+  hour: 17.5,
+  orientation: 0,
+};
 
 let state: ScreenSettings = DEFAULTS;
 let loaded = false;
@@ -47,6 +58,10 @@ function load() {
         volume: clamp(Number(saved.volume ?? DEFAULTS.volume), 0, 1),
         timeAuto: typeof saved.timeAuto === 'boolean' ? saved.timeAuto : DEFAULTS.timeAuto,
         hour: clamp(Number(saved.hour ?? DEFAULTS.hour), 0, 24),
+        // Not clamp(): its fallback is the upper bound, and 0 (due west) is the sane default here
+        orientation: Number.isFinite(Number(saved.orientation))
+          ? Math.min(MAX_ORIENTATION, Math.max(-MAX_ORIENTATION, Number(saved.orientation)))
+          : DEFAULTS.orientation,
       };
     }
   } catch {
@@ -111,6 +126,14 @@ export function useHour(): number {
     return () => clearInterval(id);
   }, [timeAuto]);
   return timeAuto ? (now ?? DEFAULTS.hour) : hour;
+}
+
+const COMPASS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+
+/** Compass bearing the window faces for an orientation offset: 0 is due west, 270° */
+export function windowBearing(orientation: number) {
+  const deg = Math.round((((270 + orientation) % 360) + 360) % 360);
+  return { deg, point: COMPASS[Math.round(deg / 22.5) % 16] };
 }
 
 /** "17:30" for a fractional hour */

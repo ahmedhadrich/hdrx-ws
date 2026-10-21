@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from './ThemeToggle';
@@ -269,7 +270,7 @@ export function Nav() {
           />
 
           {/* Logo — centered in remaining space */}
-          <a
+          <Link
             href="/"
             aria-label={site.name}
             className="flex items-center justify-center flex-shrink-0 text-ink-primary hover:text-ink-secondary transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-accent-signal focus-visible:outline-offset-2 focus-visible:rounded-full"
@@ -278,7 +279,7 @@ export function Nav() {
             <span className="font-mono text-[10px] tracking-[0.12em] uppercase select-none">
               {site.shortName}
             </span>
-          </a>
+          </Link>
         </div>
 
         {/* Right pill — Section ticker */}

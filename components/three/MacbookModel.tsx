@@ -4,7 +4,7 @@ import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, type MutableRefObject } from 'react';
 import * as THREE from 'three';
-import { H_PATH } from '@/components/screen/MenuBar';
+import { H_PATH } from '@/components/ui/mark';
 
 // MacBook Pro 14" (M5) by "Apple User" on Sketchfab, Free Standard licence.
 // Compressed from the source GLB with gltf-transform (meshopt + webp), hierarchy kept.

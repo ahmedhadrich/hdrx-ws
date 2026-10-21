@@ -7,8 +7,10 @@ glass MacBook Pro with a transparent display ("everything written on glass").
 ## What changed
 
 - `app/page.tsx` renders `components/screen/MacbookStage.tsx` only.
-- `components/layout/SiteChrome.tsx` hides Nav / Footer / IntroLoader / CrtOverlay /
-  AmbientBackground on `/`; other routes keep them.
+- `components/layout/SiteChrome.tsx` (Nav / Footer / IntroLoader / CrtOverlay /
+  AmbientBackground) is mounted per route by `app/work/layout.tsx`, not the root layout,
+  so it stays out of the home bundle (2026-10-21). The root `not-found.tsx` ships with
+  every route, so it must stay server-only: never wrap it in SiteChrome.
 - `components/screen/`
   - `MacbookStage` — device frame, HUD corners, keyboard / wheel / swipe browsing, boot
   - `GlassShader` — raw WebGL overlay for the whole display (edge thickness, rim,

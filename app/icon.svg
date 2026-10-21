@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- HDRX favicon: the lid's H (H_PATH in components/screen/MenuBar.tsx) in black, on a sage disc -->
+  <!-- HDRX favicon: the lid's H (H_PATH in components/ui/mark.ts) in black, on a sage disc -->
   <circle cx="50" cy="50" r="50" fill="#87bba2"/>
   <path transform="translate(50 50) scale(0.6) translate(-50 -50)" d="M22 10h16v32h24V10h16v80H62V56H38v34H22z" fill="#0b0b0e"/>
 </svg>

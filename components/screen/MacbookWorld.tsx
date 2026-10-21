@@ -74,11 +74,11 @@ export default function MacbookWorld(props: Props) {
   // The 3D display's glow follows the screen settings: same curve as the HTML screen's
   // dimming veil (opacity (1 - brightness) * 0.85), and much dimmer behind the dark glass
   const { theme } = useTheme();
-  const { brightness, accent } = useScreenSettings();
+  const { brightness, accent, orientation } = useScreenSettings();
   const hour = useHour();
   const backlight = (1 - (1 - brightness) * 0.85) * (theme === 'dark' ? 0.35 : 1);
   // Anything that eases the room's look: Director renders at full rate for a moment after it changes
-  const wakeKey = `${theme}|${brightness}|${accent}|${hour}`;
+  const wakeKey = `${theme}|${brightness}|${accent}|${hour}|${orientation}`;
   // Hidden until Director has posed the lid and camera: the model's very first frame
   // still has the GLB's default pose (lid open) and the room's resting camera.
   const [shown, setShown] = useState(false);

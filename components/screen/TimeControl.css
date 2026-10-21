@@ -1,86 +1,109 @@
-/* Time of day bar, in the room under the plinth (components/screen/TimeControl).
+/* Room light control, in the room under the plinth (components/screen/TimeControl).
    Always dark glass: it sits over the 3D room, whatever the screen's theme.
+   Kept quiet on purpose: hairline tracks, a small knob, text-only buttons.
    Unprefixed backdrop-filter only: the build adds -webkit-. */
 .timectl {
+  --knob: 10px;
+  --ink: #f4f4ee;
+  --ink-dim: rgba(244, 244, 238, 0.5);
   position: fixed;
   left: 50%;
   bottom: 24px;
   z-index: 3;
-  width: min(520px, calc(100vw - 32px));
+  width: min(440px, calc(100vw - 32px));
   translate: -50% 0;
-  display: grid;
-  gap: 10px;
-  padding: 12px 16px 12px;
-  border-radius: 18px;
-  color: #f4f4ee;
-  background: rgba(14, 14, 18, 0.42);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(20px) saturate(150%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 18px 40px -16px rgba(0, 0, 0, 0.55);
+  padding: 12px 16px;
+  color: var(--ink);
+  background: rgba(14, 14, 18, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px) saturate(140%);
 }
 
-.timectl__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* Auto: just the pill (radius comes inline from TimeControl, for the layout morph) */
+.timectl[data-collapsed] {
+  width: auto;
+  padding: 0;
 }
 
-.timectl__label { color: rgba(244, 244, 238, 0.72); }
-
-.timectl__meta {
+.timectl__pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-}
-
-.timectl__clock {
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-  opacity: 0.85;
-}
-
-/* Pressed = following the visitor's clock; dragging or a preset turns it off */
-.timectl__auto,
-.timectl__preset {
-  padding: 3px 10px;
-  border-radius: 999px;
+  padding: 8px 14px;
   font-size: 12px;
-  font-weight: 600;
   line-height: 1.3;
-  color: #f4f4ee;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  color: var(--ink);
   cursor: pointer;
-  transition: background-color var(--dur-fast), color var(--dur-fast), box-shadow var(--dur-fast);
 }
 
-.timectl__auto:hover,
-.timectl__preset:hover { background: rgba(255, 255, 255, 0.16); }
+.timectl__pill .timectl__value { color: var(--ink-dim); }
+.timectl__pill:hover .timectl__value { color: var(--ink); }
+.timectl__pill:focus-visible { outline: 1px solid var(--accent-signal); outline-offset: 3px; border-radius: 999px; }
 
-.timectl__auto[aria-pressed='true'],
-.timectl__preset[aria-pressed='true'] {
-  color: #0b0b0e;
+.timectl__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
   background: var(--accent-signal);
-  box-shadow: none;
 }
 
-.timectl__auto:focus-visible,
-.timectl__preset:focus-visible { outline: 2px solid var(--accent-signal); outline-offset: 2px; }
+.timectl__panel {
+  display: grid;
+  gap: 6px;
+}
 
-.timectl__control {
-  display: flex;
+/* label | track | value | extra (Auto) */
+.timectl__row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr 4.25rem 2.75rem;
   align-items: center;
   gap: 12px;
 }
 
-.timectl__icon { flex: none; width: 16px; height: 16px; opacity: 0.8; }
-.timectl__icon--sun { width: 20px; height: 20px; }
+.timectl__label { color: var(--ink-dim); }
 
-/* Thin track, filled up to the knob */
+.timectl__value {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.timectl__extra { display: flex; justify-content: flex-end; }
+
+/* Text buttons (Auto, presets): dim until on; on = full ink and an accent dot */
+.timectl__text {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 0;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: color var(--dur-fast);
+}
+
+.timectl__text::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent-signal);
+  opacity: 0;
+  transition: opacity var(--dur-fast);
+}
+
+.timectl__text:hover { color: var(--ink); }
+.timectl__text[aria-pressed='true'] { color: var(--ink); }
+.timectl__text[aria-pressed='true']::before { opacity: 1; }
+.timectl__text:focus-visible { outline: 1px solid var(--accent-signal); outline-offset: 3px; border-radius: 2px; }
+
+/* Track: knob centres run from K/2 to 100% - K/2, and the fill spans lo..hi on that same scale */
 .timectl__bar {
   position: relative;
-  flex: 1;
-  height: 22px;
+  height: 20px;
 }
 
 .timectl__bar::before,
@@ -88,30 +111,43 @@
   content: '';
   position: absolute;
   top: 50%;
-  left: 0;
-  height: 4px;
+  height: 2px;
   translate: 0 -50%;
   border-radius: 999px;
+  pointer-events: none;
 }
 
-.timectl__bar::before { right: 0; background: rgba(255, 255, 255, 0.18); }
-.timectl__bar::after { width: calc(var(--frac) * 100%); background: rgba(244, 244, 238, 0.9); }
+.timectl__bar::before { left: 0; right: 0; background: rgba(255, 255, 255, 0.16); }
+
+.timectl__bar::after {
+  left: calc(var(--lo) * (100% - var(--knob)) + var(--knob) / 2);
+  width: calc((var(--hi) - var(--lo)) * (100% - var(--knob)));
+  background: rgba(244, 244, 238, 0.8);
+}
+
+/* Zero tick for signed values (facing) */
+.timectl__bar[data-centred] {
+  background: linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.35)) center / 1px 8px no-repeat;
+}
 
 .timectl__knob {
   position: absolute;
   top: 50%;
-  left: calc(var(--frac) * (100% - 18px));
+  left: calc(var(--frac) * (100% - var(--knob)));
   z-index: 1;
-  width: 18px;
-  height: 18px;
+  width: var(--knob);
+  height: var(--knob);
   translate: 0 -50%;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  background: var(--ink);
   pointer-events: none;
+  transition: scale var(--dur-fast);
 }
 
-.timectl__bar:focus-within .timectl__knob { outline: 2px solid var(--accent-signal); outline-offset: 2px; }
+.timectl__bar:hover .timectl__knob,
+.timectl__bar:focus-within .timectl__knob { scale: 1.3; }
+
+.timectl__bar:focus-within .timectl__knob { outline: 1px solid var(--accent-signal); outline-offset: 2px; }
 
 .timectl__bar input {
   position: absolute;
@@ -127,6 +163,13 @@
 .timectl__presets {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timectl__knob { transition: none; }
 }
