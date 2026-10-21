@@ -29,8 +29,8 @@ export const metadata: Metadata = {
   title: { default: meta.title, template: meta.titleTemplate },
   description: meta.description,
   applicationName: site.name,
-  authors: [{ name: site.owner, url: site.url }],
-  creator: site.owner,
+  authors: [{ name: site.name, url: site.url }],
+  creator: site.name,
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
@@ -54,13 +54,13 @@ export const viewport: Viewport = {
   colorScheme: 'dark light',
 };
 
-// Who the site is about, for search engines. A data block, not a script: CSP leaves it alone.
-const PERSON = JSON.stringify({
+// What the site is, for search engines. A data block, not a script: CSP leaves it alone.
+const ORG = JSON.stringify({
   '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: site.owner,
+  '@type': 'Organization',
+  name: site.name,
   url: site.url,
-  jobTitle: meta.jobTitle,
+  description: meta.description,
   email: `mailto:${site.email}`,
   address: { '@type': 'PostalAddress', addressCountry: 'DE' },
   sameAs: site.social.filter((s) => !s.href.startsWith('mailto:')).map((s) => s.href),
@@ -75,7 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Saved theme / accent / brightness before first paint, so there's no flash.
             Keys and values mirror lib/hooks/useTheme.tsx and components/screen/settings.ts. */}
         <script dangerouslySetInnerHTML={{ __html: PREPAINT }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: PERSON }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ORG }} />
       </head>
       <body>
         <a href="#main" className="skip-link">

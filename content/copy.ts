@@ -1,7 +1,6 @@
 export const site = {
   name: 'HDRX',
   shortName: 'HDRX',
-  owner: 'Ahmed Hadrich',
   url: 'https://hdrx.dev',
   email: 'hadrichahmed01@gmail.com',
   social: [
@@ -12,17 +11,17 @@ export const site = {
 } as const;
 
 // Page titles, search snippets and link previews (app/layout.tsx, app/opengraph-image.tsx).
-// Written to be read in a Google result or a Slack unfurl: first person, plain words.
+// Brand-first: HDRX and the work, no personal name. Plain words, read in a Google result or a Slack unfurl.
 export const meta = {
-  title: 'Ahmed Hadrich · Engineer and designer',
-  titleTemplate: '%s · Ahmed Hadrich',
+  title: 'HDRX · Product engineering and design',
+  titleTemplate: '%s · HDRX',
   description:
-    'I’m Ahmed, an engineer and designer in Germany. I turn messy briefs into products that ship, from robotics brands to clinical-trial search.',
-  // Shorter line for link previews, where the title already says who
+    'HDRX designs and builds digital products, from first sketch to shipped code. Robotics brands, clinical-trial search, education platforms and interactive 3D.',
+  // Shorter line for link previews, where the title already says what
   ogDescription: 'Messy briefs in, shipped products out. Robotics, health, education, and the odd 3D experiment.',
-  ogAlt: 'Ahmed Hadrich, engineer and designer',
-  jobTitle: 'Engineer and designer',
-  location: 'Germany',
+  ogAlt: 'HDRX, product engineering and design',
+  // Bottom line of the link preview card
+  disciplines: 'Product · Brand · Interactive 3D',
   notFound: 'Page not found',
 } as const;
 
@@ -41,7 +40,7 @@ export const footer = {
 // Single-screen home: everything lives on one glass MacBook display.
 export const screen = {
   // Visually hidden page heading: what screen readers and search engines take the page to be
-  heading: 'Ahmed Hadrich, engineer and designer',
+  heading: 'HDRX, product engineering and design',
   panels: [
     { id: 'contact', label: 'Contact' },
   ],
