@@ -99,3 +99,27 @@
     font-size: 13px;
   }
 }
+
+/* Phones + tablets (query mirrors lib/utils/device.ts): no bar, just the H, centred.
+   [data-theme] outranks the light-theme background above. */
+@media (max-width: 767px), (pointer: coarse) {
+  [data-theme] .mbp__head.menubar {
+    justify-content: center;
+    height: auto;
+    padding: calc(16px + env(safe-area-inset-top)) 0 4px;
+    color: var(--ink-primary);
+    background: transparent;
+    backdrop-filter: none;
+  }
+
+  .mbp__head.menubar .menubar__app,
+  .mbp__head.menubar .menubar__group:last-of-type {
+    display: none;
+  }
+
+  .mbp__head.menubar .menubar__logo {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+  }
+}

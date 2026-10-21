@@ -59,11 +59,12 @@ glass MacBook Pro with a transparent display ("everything written on glass").
 ## Mobile: bare screen (2026-10-21)
 
 - Phones AND tablets (`MOBILE_QUERY` in `lib/utils/device.ts`: `(max-width: 767px), (pointer: coarse)`)
-  get the same screen (menu bar, CSS fan, caption, dock) full-bleed, without the MacBook, the room,
+  get the same screen (CSS fan, caption, dock) full-bleed; the menu bar shrinks to a centred H
+  (MenuBar.css), so Settings and the clock aren't reachable there, without the MacBook, the room,
   the blobs or the GlassShader. Reason: the always-on WebGL and blurred animated layers were buggy
   on mid-range devices. Tablets used to get the full 3D MacbookWorld; they no longer do.
 - Nothing renders between interactions: the CSS fan only transitions on swipe / tap.
-- A "Get in touch" button (`screen.contactCta`) sits under the dock and opens the Contact panel.
+- A glass "Contact" button (`.mbp__contact`, `screen.contactLabel`) sits under the dock and opens the Contact panel.
 - Theme on mobile follows the device's `prefers-color-scheme`, live. Desktop keeps the light
   default + saved choice. The rule lives in three places that must agree: `useTheme`, the pre-paint
   script and `viewport.themeColor` in `app/layout.tsx`. The Control Centre toggle still works on

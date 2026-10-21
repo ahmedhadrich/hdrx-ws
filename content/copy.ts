@@ -49,8 +49,6 @@ export const screen = {
   batteryLabel: 'Battery',
   settingsLabel: 'Settings',
   contactLabel: 'Contact',
-  // Big button under the screen on phones and tablets
-  contactCta: 'Get in touch',
   settings: {
     title: 'Control Centre',
     darkMode: 'Dark mode',
