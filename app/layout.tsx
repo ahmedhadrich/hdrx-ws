@@ -48,9 +48,16 @@ export const metadata: Metadata = {
   formatDetection: { telephone: false, email: false, address: false },
 };
 
-// Browser chrome matches the dark room around the MacBook
+// Browser chrome: the dark room around the MacBook on desktop; phones and tablets follow
+// the device theme (--bg-base). First match wins. Media mirrors lib/utils/device.ts.
 export const viewport: Viewport = {
-  themeColor: '#0b0b0e',
+  themeColor: [
+    {
+      media: '(prefers-color-scheme: light) and (max-width: 767px), (prefers-color-scheme: light) and (pointer: coarse)',
+      color: '#f2ebdf',
+    },
+    { color: '#0b0b0e' },
+  ],
   colorScheme: 'dark light',
 };
 
@@ -66,13 +73,13 @@ const ORG = JSON.stringify({
   sameAs: site.social.filter((s) => !s.href.startsWith('mailto:')).map((s) => s.href),
 });
 
-const PREPAINT = `try{var d=document.documentElement;if(localStorage.getItem('hdrx-theme')==='dark')d.dataset.theme='dark';var s=JSON.parse(localStorage.getItem('hdrx-settings')||'null');if(s){var a={signal:'#87bba2',shore:'#e8865a',bone:'#e9dfc8'}[s.accent];if(a)d.style.setProperty('--accent-signal',a);var b=Math.min(1,Math.max(0.3,+s.brightness||1));d.style.setProperty('--screen-dim',((1-b)*0.85).toFixed(3));}}catch(e){}`;
+const PREPAINT = `try{var d=document.documentElement;if(matchMedia('(max-width: 767px), (pointer: coarse)').matches)d.dataset.theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';else if(localStorage.getItem('hdrx-theme')==='dark')d.dataset.theme='dark';var s=JSON.parse(localStorage.getItem('hdrx-settings')||'null');if(s){var a={signal:'#87bba2',shore:'#e8865a',bone:'#e9dfc8'}[s.accent];if(a)d.style.setProperty('--accent-signal',a);var b=Math.min(1,Math.max(0.3,+s.brightness||1));d.style.setProperty('--screen-dim',((1-b)*0.85).toFixed(3));}}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning className={`${satoshi.variable} ${mono.variable}`}>
       <head>
-        {/* Saved theme / accent / brightness before first paint, so there's no flash.
+        {/* Theme (device setting on mobile, saved choice on desktop) / accent / brightness before first paint, so there's no flash.
             Keys and values mirror lib/hooks/useTheme.tsx and components/screen/settings.ts. */}
         <script dangerouslySetInnerHTML={{ __html: PREPAINT }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ORG }} />

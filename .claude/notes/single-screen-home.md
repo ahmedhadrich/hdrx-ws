@@ -55,3 +55,19 @@ glass MacBook Pro with a transparent display ("everything written on glass").
 - Intro (updated): plays on every page load, not once per session. The
   `hdrx-booted` sessionStorage key and the `?intro` replay param are gone. Reduced
   motion still opens straight to the live screen; any click or key skips the intro.
+
+## Mobile: bare screen (2026-10-21)
+
+- Phones AND tablets (`MOBILE_QUERY` in `lib/utils/device.ts`: `(max-width: 767px), (pointer: coarse)`)
+  get the same screen (CSS fan, caption, dock) full-bleed; the menu bar shrinks to a centred H
+  (MenuBar.css), so Settings and the clock aren't reachable there, without the MacBook, the room,
+  the blobs or the GlassShader. Reason: the always-on WebGL and blurred animated layers were buggy
+  on mid-range devices. Tablets used to get the full 3D MacbookWorld; they no longer do.
+- Nothing renders between interactions: the CSS fan only transitions on swipe / tap.
+- A glass "Contact" button (`.mbp__contact`, `screen.contactLabel`) sits under the dock and opens the Contact panel.
+- Theme on mobile follows the device's `prefers-color-scheme`, live. Desktop keeps the light
+  default + saved choice. The rule lives in three places that must agree: `useTheme`, the pre-paint
+  script and `viewport.themeColor` in `app/layout.tsx`. The Control Centre toggle still works on
+  mobile until the device setting changes or the page reloads.
+- A first attempt replaced the screen with a plain swipe carousel (db70a44); the user wanted the
+  screen kept, so that was removed.

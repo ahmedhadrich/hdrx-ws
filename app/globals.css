@@ -815,8 +815,10 @@ a {
   .fan__card { transition: opacity 200ms linear; }
 }
 
-/* ---------- Phones: drop the laptop body, keep the glass ---------- */
-@media (max-width: 767px) {
+/* ---------- Phones + tablets: just the screen, full-bleed (query mirrors lib/utils/device.ts) ---------- */
+@media (max-width: 767px), (pointer: coarse) {
+  /* No room behind it, so nothing to blur: solid page colour, no backdrop-filter */
+  .mbp { background: var(--bg-base); }
   .mbp__device { width: 100vw; height: 100dvh; }
   .mbp__lid {
     aspect-ratio: auto;
@@ -824,15 +826,57 @@ a {
     padding: 0;
     border-radius: 0;
     background: transparent;
+    backdrop-filter: none;
     box-shadow: none;
   }
   .mbp__notch,
   .mbp__base { display: none; }
-  .mbp__display { border-radius: 0; }
-  .mbp__foot { padding: 8px 16px 20px; }
+  .mbp__display {
+    border-radius: 0;
+    backdrop-filter: none;
+    box-shadow: none;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .mbp__foot {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px 20px;
+  }
   .mbp__caption { padding-inline: 16px; min-height: 0; }
-  .fan { --card-w: 70cqi; }
+  /* Capped by height too, so tablets and phones on their side keep the fan in view */
+  .fan { --card-w: min(80cqi, 64dvh); }
   .hud { font-size: 11px; }
+}
+
+.mbp__contact {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 24px;
+  border-radius: 999px;
+  color: var(--ink-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur-fast), border-color var(--dur-fast);
+}
+
+.mbp__contact:active { border-color: var(--accent-signal); }
+
+[data-theme='light'] .mbp__contact {
+  background: rgba(245, 238, 226, 0.6);
+  border-color: rgba(14, 14, 18, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 8px 24px -12px rgba(0, 0, 0, 0.18);
+}
+
+/* Phones on their side: no room for the dock, keep the button */
+@media (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
+  .mbp__foot .dock { display: none; }
+  .mbp__foot { padding-block: 4px 10px; }
+  .mbp__contact { height: 40px; }
 }
 
 /* ---------- Dock ---------- */
