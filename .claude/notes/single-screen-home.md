@@ -71,3 +71,13 @@ glass MacBook Pro with a transparent display ("everything written on glass").
   mobile until the device setting changes or the page reloads.
 - A first attempt replaced the screen with a plain swipe carousel (db70a44); the user wanted the
   screen kept, so that was removed.
+
+## Lid snapping shut mid-browse (fixed 2026-10-22)
+
+- R3F's `setFrameloop` resets `clock.elapsedTime` to 0, and a `<Canvas>` re-applies its own
+  `frameloop` prop on every re-render. Director used to call `setFrameloop('demand')` itself and
+  time the lid/zoom off the R3F clock, so each carousel step (page re-render) reset the clock,
+  `now` fell before `lidStart`, and the lid eased back to closed with the screen hidden.
+- Now: Director times everything with `performance.now()`, and the frameloop is a prop owned by
+  MacbookWorld (`onIdle` → `frameloop`), passed to RoomScene / the studio Canvas.
+  Never read `state.clock` for timelines in a canvas whose frameloop changes.
