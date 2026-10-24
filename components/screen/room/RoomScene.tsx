@@ -244,9 +244,11 @@ interface Props {
   children?: ReactNode;
   /** Someone else drives the camera (the MacBook's zoom); skip the pointer rig */
   externalCamera?: boolean;
+  /** Owner-driven frameloop (MacbookWorld drops to 'demand' when settled); still always wins */
+  frameloop?: 'always' | 'demand';
 }
 
-export default function RoomScene({ still, children, externalCamera = false }: Props) {
+export default function RoomScene({ still, children, externalCamera = false, frameloop = 'always' }: Props) {
   return (
     <Canvas
       className="mbp__scene"
@@ -254,7 +256,7 @@ export default function RoomScene({ still, children, externalCamera = false }: P
       dpr={IS_FIREFOX ? [1, 1] : [1, 1.25]}
       // PCF, not R3F's default PCFSoft: three r18x deprecated soft shadows and warns on every shadow render
       shadows="percentage"
-      frameloop={still ? 'demand' : 'always'}
+      frameloop={still ? 'demand' : frameloop}
       gl={{ antialias: false, powerPreference: 'high-performance' }}
       aria-hidden="true"
     >

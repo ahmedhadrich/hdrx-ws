@@ -83,13 +83,19 @@ export default function MacbookWorld(props: Props) {
   // still has the GLB's default pose (lid open) and the room's resting camera.
   const [shown, setShown] = useState(false);
   const onPosed = () => setShown(true);
+  // Settled zoomed in, Director asks for on-demand frames. The frameloop has to live here, as
+  // the Canvas prop: a Canvas re-applies its own prop on every re-render, so a setFrameloop()
+  // from inside was undone each time the page re-rendered (every carousel step).
+  const [idle, setIdle] = useState(false);
+  const frameloop = idle ? 'demand' : 'always';
 
+  const director = { ...props, onPosed, onIdle: setIdle, backlight, wakeKey };
   const laptop = withRoom ? (
     <group position={[PLINTH_TOP.x, PLINTH_TOP.y + BASE_DROP * ROOM_SCALE, PLINTH_TOP.z]} scale={ROOM_SCALE}>
-      <Director {...props} scale={ROOM_SCALE} onPosed={onPosed} backlight={backlight} wakeKey={wakeKey} />
+      <Director {...director} scale={ROOM_SCALE} />
     </group>
   ) : (
-    <Director {...props} scale={1} onPosed={onPosed} backlight={backlight} wakeKey={wakeKey} />
+    <Director {...director} scale={1} />
   );
 
   return (
@@ -107,7 +113,7 @@ export default function MacbookWorld(props: Props) {
     >
       <WorldErrorBoundary onError={onError}>
         {withRoom ? (
-          <RoomScene still={reducedMotion} externalCamera>
+          <RoomScene still={reducedMotion} externalCamera frameloop={frameloop}>
             <Suspense fallback={null}>
               <Studio environmentOnly />
               {laptop}
@@ -117,6 +123,7 @@ export default function MacbookWorld(props: Props) {
           <Canvas
             camera={{ fov: 30, near: 0.01, far: 20, position: [0, 0.4, 0.8] }}
             dpr={[1, 2]}
+            frameloop={frameloop}
             gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
           >
             <Suspense fallback={null}>
@@ -134,7 +141,7 @@ export default function MacbookWorld(props: Props) {
 type DirectorProps = Pick<
   Props,
   'phase' | 'zoom' | 'reducedMotion' | 'withRoom' | 'overlay' | 'onReady' | 'onIntroDone' | 'onZoomIn'
-> & { scale: number; onPosed: () => void; backlight: number; wakeKey: string };
+> & { scale: number; onPosed: () => void; onIdle: (idle: boolean) => void; backlight: number; wakeKey: string };
 
 function Director({
   phase,
@@ -147,6 +154,7 @@ function Director({
   onZoomIn,
   scale,
   onPosed,
+  onIdle,
   backlight,
   wakeKey,
 }: DirectorProps) {
@@ -156,7 +164,6 @@ function Director({
     backlightRef.current = backlight;
   }, [backlight]);
   const { camera, size, gl } = useThree();
-  const setFrameloop = useThree((st) => st.setFrameloop);
   const invalidate = useThree((st) => st.invalidate);
   // Until when (performance.now) the canvas must render every frame
   const wakeUntil = useRef(0);
@@ -172,9 +179,9 @@ function Director({
     wakeUntil.current = performance.now() + 1800;
     if (idle.current) {
       idle.current = false;
-      setFrameloop('always');
+      onIdle(false);
     }
-  }, [phase, zoom, wakeKey, reducedMotion, setFrameloop]);
+  }, [phase, zoom, wakeKey, reducedMotion, onIdle]);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -217,9 +224,11 @@ function Director({
     return () => setScreenVisible(true);
   }, []);
 
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (!rig || !group.current) return;
-    const now = clock.elapsedTime;
+    // Not R3F's clock: every frameloop switch resets it to 0, which put `now` before the last
+    // lid / zoom start, so the lid snapped back shut (and the screen hid) mid-browse
+    const now = performance.now() / 1000;
     const s = state.current;
     const cam = camera as THREE.PerspectiveCamera;
     const aspect = size.width / size.height;
@@ -285,7 +294,7 @@ function Director({
       performance.now() > wakeUntil.current;
     if (settled && !idle.current) {
       idle.current = true;
-      setFrameloop('demand');
+      onIdle(true);
     }
 
     // ---- camera ----
