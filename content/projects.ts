@@ -36,7 +36,7 @@ export const projects: Project[] = [
     type: 'Experiment',
     role: 'Designed and built the motion arena',
     year: 2026,
-    tags: ['Three.js', 'WebGL', 'Game design', 'Solana'],
+    tags: ['Three.js', 'WebGL', 'Solana', 'Python', 'Game design'],
     impact:
       'Turned robot motion evaluation into a game: players pick the more natural humanoid move, and every vote trains a preference model.',
     thumbnail: '/thumbs/aura-technologies.webp',
@@ -50,7 +50,7 @@ export const projects: Project[] = [
     type: 'Product',
     role: 'Designed and built the front-end',
     year: 2026,
-    tags: ['Next.js', 'Web design', 'Product design', 'Framer Motion'],
+    tags: ['Next.js', 'Three.js', 'Framer Motion', 'GSAP', 'Web design'],
     impact:
       'Building the vendor-neutral integration layer for physical automation — from use-case evaluation to deployed robotics.',
     thumbnail: '/thumbs/birdwave.webp',
@@ -64,7 +64,7 @@ export const projects: Project[] = [
     type: 'Product',
     role: 'Designed and built the platform',
     year: 2026,
-    tags: ['Next.js', 'Product design', 'Web design', 'i18n'],
+    tags: ['Next.js', 'Prisma', 'NeonDB', 'Better Auth', 'Claude', 'i18n'],
     impact:
       'Connects patients in Germany with clinical trials near them, from search and pre-screening to a first appointment at the study site.',
     thumbnail: '/thumbs/medstudy-connect.webp',
@@ -78,7 +78,7 @@ export const projects: Project[] = [
     type: 'Product',
     role: 'Designed and built the full-stack application',
     year: 2026,
-    tags: ['Next.js', 'Prisma', 'NeonDB', 'Product design'],
+    tags: ['Next.js', 'Prisma', 'NeonDB', 'Better Auth', 'Stripe', 'Capacitor'],
     impact:
       'Replaced fragmented spreadsheets and paper files with one DSGVO-compliant digital record, cutting school admin overhead by 30%.',
     thumbnail: '/thumbs/edu-360.webp',
@@ -92,7 +92,7 @@ export const projects: Project[] = [
     type: 'Brand',
     role: 'Co-built the front-end',
     year: 2026,
-    tags: ['Next.js', 'Framer Motion', 'Web design', 'Brand site'],
+    tags: ['Next.js', 'Web design', 'Brand site'],
     impact:
       'Gave an industrial AI robotics company a brand site that reads as serious and established.',
     thumbnail: '/thumbs/athenyx-robotics.webp',

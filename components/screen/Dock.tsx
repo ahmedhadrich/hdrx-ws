@@ -2,11 +2,17 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  siBetterauth,
+  siCapacitor,
+  siClaude,
   siFramer,
+  siGsap,
   siNeon,
   siNextdotjs,
   siPrisma,
+  siPython,
   siSolana,
+  siStripe,
   siThreedotjs,
   siWebflow,
   siWebgl,
@@ -24,6 +30,12 @@ const TECH_ICONS: Record<string, SimpleIcon> = {
   'Three.js': siThreedotjs,
   WebGL: siWebgl,
   Solana: siSolana,
+  Python: siPython,
+  GSAP: siGsap,
+  'Better Auth': siBetterauth,
+  Claude: siClaude,
+  Stripe: siStripe,
+  Capacitor: siCapacitor,
 };
 
 const variants = {
