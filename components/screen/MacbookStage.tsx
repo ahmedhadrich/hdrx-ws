@@ -16,6 +16,7 @@ import { MOBILE_QUERY } from '@/lib/utils/device';
 import { GlassShader } from './GlassShader';
 import { CssCarousel } from './CssCarousel';
 import { InfoPanel } from './InfoPanel';
+import { HelloBackdrop, HelloScreen, preloadPortrait } from './HelloScreen';
 import { Dock } from './Dock';
 import { MenuBar } from './MenuBar';
 import { TimeControl } from './TimeControl';
@@ -28,8 +29,13 @@ const MacbookWorld = dynamic(() => import('./MacbookWorld'), { ssr: false });
 const RoomScene = dynamic(() => import('./room/RoomScene'), { ssr: false });
 
 const BOOT_MS = 900;
+// Trailing wheel inertia / key repeat from the dismissing gesture must not step the carousel
+const DISMISS_LOCK_MS = 450;
 // How long the closed lid holds while the H lights up (counted from model loaded)
 const LOGO_HOLD_MS = 2100;
+// The hint carved in the plinth fades in once the camera has settled in the room: after the
+// intro's pull-back (MacbookWorld T.introZoom), or after a later zoom out
+const HINT_DELAY = { intro: 2.6, zoom: 1.1 };
 // Fall back to the flat screen if the 3D model hasn't loaded by then
 const LOAD_TIMEOUT_MS = 8000;
 
@@ -54,6 +60,7 @@ const variants = {
   },
 };
 
+type Hello = 'show' | 'done';
 type Boot = 'pending' | 'booting' | 'on';
 type Intro = 'pending' | 'loading' | 'closed' | 'opening' | 'open';
 // 3d: the MacBook model is the frame for good. flat: phones / no WebGL / model failed.
@@ -77,6 +84,8 @@ export function MacbookStage() {
   useEffect(() => {
     zoomRef.current = zoom;
   }, [zoom]);
+  // Has the visitor been in yet? Until then the hint waits for the intro's longer pull-back
+  const [beenIn, setBeenIn] = useState(false);
   const skipIntro = useRef(false);
   // The live screen, warped onto the 3D display every frame by MacbookWorld
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -84,6 +93,14 @@ export function MacbookStage() {
   const [progress, setProgress] = useState(0);
   const [active, setActive] = useState(0);
   const [panel, setPanel] = useState<ScreenPanelId | null>(null);
+  // Welcome photo opens every page load, until dismissed
+  const [hello, setHello] = useState<Hello>('show');
+  const [justDismissed, setJustDismissed] = useState(false);
+  const helloRef = useRef<Hello>('show');
+  const cardUpRef = useRef(false);
+  const dismissedAt = useRef(0);
+  const refocusStage = useRef(false);
+  const stageRef = useRef<HTMLDivElement>(null);
   const lastTrigger = useRef<HTMLElement | null>(null);
 
   const dark = theme === 'dark';
@@ -100,6 +117,9 @@ export function MacbookStage() {
 
   const fallBackToFlat = useCallback(() => {
     setMode('flat');
+    // 3D starts zoomed out in the room; the flat laptop has no room, so it must be zoomed in
+    // (zoomed out blocks keys / wheel and keeps the welcome photo hidden)
+    setZoom('in');
     endIntro('on');
   }, [endIntro]);
 
@@ -121,10 +141,12 @@ export function MacbookStage() {
       return;
     }
 
-    // 3D MacBook: load, H lights up on the closed lid, lid swings open. Plays on every visit;
-    // reduced motion still gets the model, just already open. Any click or key skips it.
+    // 3D MacBook: once loaded, the H lights up on the closed lid, then the camera pulls back
+    // into the room with the lid still shut (MacbookWorld). Clicking the MacBook zooms in and
+    // opens it. Plays on every visit; reduced motion lands in the room directly.
     skipIntro.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setMode('3d');
+    setZoom('out');
     setIntro('loading');
   }, [fallBackToFlat]);
 
@@ -137,14 +159,30 @@ export function MacbookStage() {
 
   useEffect(() => {
     if (intro !== 'closed') return;
-    const id = setTimeout(() => setIntro((i) => (i === 'closed' ? 'opening' : i)), LOGO_HOLD_MS);
+    const id = setTimeout(() => endIntro('on'), LOGO_HOLD_MS);
     return () => clearTimeout(id);
-  }, [intro]);
+  }, [intro, endIntro]);
+
+  useEffect(() => {
+    if (boot === 'on' && zoom === 'in') setBeenIn(true);
+  }, [boot, zoom]);
 
   const onWorldReady = useCallback(() => {
     if (skipIntro.current) endIntro('on');
     else setIntro((i) => (i === 'loading' ? 'closed' : i));
   }, [endIntro]);
+
+  // A click or key while the H lights up skips straight to the pull-back
+  useEffect(() => {
+    if (intro !== 'closed') return;
+    const skip = () => endIntro('on');
+    window.addEventListener('pointerdown', skip);
+    window.addEventListener('keydown', skip);
+    return () => {
+      window.removeEventListener('pointerdown', skip);
+      window.removeEventListener('keydown', skip);
+    };
+  }, [intro, endIntro]);
 
   const onIntroDone = useCallback(() => endIntro('booting'), [endIntro]);
 
@@ -156,18 +194,6 @@ export function MacbookStage() {
     if (mode === '3d') return zoom === 'out' ? startParallax() : undefined;
     return startParallax(rootRef.current);
   }, [intro, showRoom, reducedMotion, mode, zoom]);
-
-  // Any click or key during the intro jumps straight to the live screen
-  useEffect(() => {
-    if (intro !== 'loading' && intro !== 'closed' && intro !== 'opening') return;
-    const skip = () => endIntro('on');
-    window.addEventListener('pointerdown', skip);
-    window.addEventListener('keydown', skip);
-    return () => {
-      window.removeEventListener('pointerdown', skip);
-      window.removeEventListener('keydown', skip);
-    };
-  }, [intro, endIntro]);
 
   // Screen power-on progress, after the lid is open
   useEffect(() => {
@@ -188,8 +214,39 @@ export function MacbookStage() {
     };
   }, [boot]);
 
+  // Fetch the photo during the intro so it's there when the lid opens
+  useEffect(() => {
+    preloadPortrait();
+  }, []);
+
+  const cardUp = boot === 'on' && hello === 'show';
+  useEffect(() => {
+    helloRef.current = hello;
+    cardUpRef.current = cardUp;
+  }, [hello, cardUp]);
+
+  const dismissHello = useCallback(() => {
+    if (helloRef.current !== 'show') return;
+    helloRef.current = 'done';
+    cardUpRef.current = false;
+    dismissedAt.current = performance.now();
+    refocusStage.current = true;
+    setJustDismissed(true);
+    setHello('done');
+  }, []);
+
+  // Once the carousel is live again, put keyboard focus on it so it isn't left on the removed button
+  useEffect(() => {
+    if (hello === 'done' && refocusStage.current) {
+      refocusStage.current = false;
+      stageRef.current?.focus();
+    }
+  }, [hello]);
+
   // ---- navigation ----
   const go = useCallback((delta: number) => {
+    // Hidden behind the welcome card (or just dismissed by this same gesture): don't step
+    if (helloRef.current !== 'done' || performance.now() - dismissedAt.current < DISMISS_LOCK_MS) return;
     setActive((a) => Math.min(Math.max(a + delta, 0), projects.length - 1));
   }, []);
 
@@ -241,6 +298,16 @@ export function MacbookStage() {
       if (zoomRef.current === 'out') return;
       const target = e.target as HTMLElement;
       const onControl = target.closest('a, button, input, textarea, select');
+      if (cardUpRef.current) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          if (!e.repeat) dismissHello();
+        } else if (e.key === 'Enter' && !onControl) {
+          dismissHello();
+        }
+        return;
+      }
+      if (helloRef.current !== 'done') return;
       if (e.key === 'ArrowRight') {
         e.preventDefault();
         go(1);
@@ -248,15 +315,16 @@ export function MacbookStage() {
         e.preventDefault();
         go(-1);
       } else if (e.key === 'Enter' && !onControl) {
+        // A held Enter that just dismissed the card must not also open the first project
+        if (e.repeat || performance.now() - dismissedAt.current < DISMISS_LOCK_MS) return;
         openActive();
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [panel, go, openActive, closePanel]);
+  }, [panel, go, openActive, closePanel, dismissHello]);
 
   // ---- wheel / trackpad and drag / swipe, one step per gesture ----
-  const stageRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
@@ -269,7 +337,8 @@ export function MacbookStage() {
       if (now < lockUntil) return;
       acc += Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if (Math.abs(acc) > 40) {
-        go(acc > 0 ? 1 : -1);
+        if (cardUpRef.current) dismissHello();
+        else go(acc > 0 ? 1 : -1);
         acc = 0;
         lockUntil = now + 420;
       }
@@ -285,7 +354,10 @@ export function MacbookStage() {
       }
       const dx = e.clientX - downX;
       downX = null;
-      if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+      if (Math.abs(dx) > 50) {
+        if (cardUpRef.current) dismissHello();
+        else go(dx < 0 ? 1 : -1);
+      }
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     el.addEventListener('pointerdown', onDown);
@@ -296,14 +368,20 @@ export function MacbookStage() {
       window.removeEventListener('pointerup', onUp);
     };
     // mode: the stage only exists once the screen is mounted (flat or 3d), not on first render
-  }, [panel, go, mode]);
+  }, [panel, go, mode, dismissHello]);
 
   const on = boot === 'on';
+  const showWork = on && hello === 'done';
   const hudV = reducedMotion ? variants.reduced : variants.hud;
 
   // The live screen. Shared by both modes: inside the flat lid, or warped onto the 3D display.
   const display = (
     <div className="mbp__display">
+      <AnimatePresence>
+        {/* Wallpaper from the moment the lid opens (through the boot), not just once the text is up */}
+        {hello === 'show' && <HelloBackdrop key="hello-photo" reducedMotion={reducedMotion} revealed={intro === 'open' && zoom === 'in'} />}
+      </AnimatePresence>
+
       {/* ---------- HUD: header ---------- */}
       <motion.header className="mbp__head menubar" initial="hidden" animate={on ? 'visible' : 'hidden'}>
         <MenuBar variants={hudV} onContact={(trigger) => openPanel('contact', trigger)} />
@@ -316,13 +394,17 @@ export function MacbookStage() {
         role="region"
         aria-roledescription="carousel"
         aria-label="Selected work"
+        tabIndex={-1}
       >
         <motion.div
           className="absolute inset-0"
+          // Hidden and out of the tab order / a11y tree until the welcome card is dismissed
+          inert={!showWork}
           initial={{ opacity: 0 }}
-          animate={{ opacity: on ? 1 : 0 }}
+          animate={{ opacity: showWork ? 1 : 0 }}
           transition={{
-            duration: reducedMotion ? 0.2 : 0.9,
+            // Slow fade with the boot; a click-triggered reveal stays within the 400ms default
+            duration: reducedMotion ? 0.2 : justDismissed ? 0.4 : 0.9,
             ease: EASE_OUT_SOFT,
           }}
         >
@@ -334,7 +416,11 @@ export function MacbookStage() {
             ))}
         </motion.div>
 
-        {on && (
+        <AnimatePresence>
+          {cardUp && <HelloScreen key="hello" onDismiss={dismissHello} reducedMotion={reducedMotion} />}
+        </AnimatePresence>
+
+        {showWork && (
           <>
             <button
               type="button"
@@ -361,7 +447,7 @@ export function MacbookStage() {
       {/* ---------- Caption for the centred project ---------- */}
       <div className="mbp__caption" aria-live="polite">
         <AnimatePresence mode="wait">
-          {on && (
+          {showWork && (
             <motion.div
               key={project.slug}
               variants={reducedMotion ? variants.reduced : variants.caption}
@@ -392,7 +478,7 @@ export function MacbookStage() {
 
       {/* ---------- HUD: footer ---------- */}
       <motion.footer className="mbp__foot" initial="hidden" animate={on ? 'visible' : 'hidden'}>
-        <motion.div variants={hudV} custom={3}>
+        <motion.div variants={hudV} custom={3} style={{ visibility: showWork ? undefined : 'hidden' }}>
           <Dock tags={project.tags} reducedMotion={reducedMotion} />
         </motion.div>
         {isMobile && (
@@ -436,6 +522,9 @@ export function MacbookStage() {
 
   return (
     <div ref={rootRef} className={cn('mbp', intro !== 'open' && 'is-intro', showRoom && 'has-room')}>
+      {/* The page heading for screen readers and search engines. Here, not in the menu bar:
+          the screen only mounts on the client, and this must be in the server-rendered HTML. */}
+      <h1 className="sr-only">{screen.heading}</h1>
       <div className="mbp__room" aria-hidden="true">
         {/* In 3D mode the room is drawn by MacbookWorld, with the MacBook standing in it.
             While loading (and in 3D) this layer stays empty, just the dark room colour,
@@ -479,6 +568,11 @@ export function MacbookStage() {
             onIntroDone={onIntroDone}
             onZoomIn={() => setZoom('in')}
             onError={fallBackToFlat}
+            hint={{
+              text: screen.zoomHint,
+              show: on && zoom === 'out',
+              delay: reducedMotion ? 0 : beenIn ? HINT_DELAY.zoom : HINT_DELAY.intro,
+            }}
           />
           <div
             ref={overlayRef}

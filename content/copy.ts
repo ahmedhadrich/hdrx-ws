@@ -1,6 +1,10 @@
 export const site = {
   name: 'HDRX',
   shortName: 'HDRX',
+  // The person behind the brand: what people actually search for
+  person: { name: 'Ahmed Hadrich', firstName: 'Ahmed', lastName: 'Hadrich', jobTitle: 'Full-Stack Engineer' },
+  // Source photo (crawlable, full size) for search engines' knowledge panels
+  portrait: '/me/portrait.jpg',
   url: 'https://hdrx.dev',
   email: 'hadrichahmed01@gmail.com',
   social: [
@@ -11,17 +15,20 @@ export const site = {
 } as const;
 
 // Page titles, search snippets and link previews (app/layout.tsx, app/opengraph-image.tsx).
-// Brand-first: HDRX and the work, no personal name. Plain words, read in a Google result or a Slack unfurl.
+// Name-first (people search for the person; the welcome screen leads with the name too), HDRX after.
+// Title under ~60 characters and description under ~155, so Google shows them whole.
 export const meta = {
-  title: 'HDRX',
-  titleTemplate: '%s · HDRX',
+  title: 'Ahmed Hadrich · Full-Stack Engineer, Frontend & AI | HDRX',
+  titleTemplate: '%s · Ahmed Hadrich',
   description:
-    'I design and build digital products, from first sketch to shipped code. Robotics brands, clinical-trial search, education platforms and interactive 3D.',
-  // Shorter line for link previews, where the title already says what
-  ogDescription: 'Messy briefs in, shipped products out. Robotics, health, education, and the odd 3D experiment.',
-  ogAlt: 'Ahmed Hadrich, product engineering, software development and design',
+    'Ahmed Hadrich, full-stack engineer and lead developer in Germany, focused on frontend and AI. Shipped work in robotics, health, education and 3D.',
+  // Shorter line for link previews, where the title already says who
+  ogDescription: 'Full-stack engineer and lead developer. Frontend and AI, from first sketch to shipped product.',
+  ogAlt: 'Ahmed Hadrich, Full-Stack Engineer, Frontend & AI, Lead Developer',
   // Bottom line of the link preview card
-  disciplines: 'Product . Websites . Software . Brand . Interactive 3D',
+  disciplines: 'Frontend . AI . Full-stack . Interactive 3D',
+  // Topics for the Person structured data
+  knowsAbout: ['Full-stack development', 'Frontend engineering', 'Artificial intelligence', 'React', 'Next.js', 'TypeScript', 'Three.js', 'Technical leadership'],
   notFound: 'Page not found',
 } as const;
 
@@ -40,7 +47,7 @@ export const footer = {
 // Single-screen home: everything lives on one glass MacBook display.
 export const screen = {
   // Visually hidden page heading: what screen readers and search engines take the page to be
-  heading: 'HDRX, product engineering and design',
+  heading: 'Ahmed Hadrich, Full-Stack Engineer, Lead Developer, Frontend & AI',
   panels: [
     { id: 'contact', label: 'Contact' },
   ],
@@ -79,12 +86,22 @@ export const screen = {
   closeLabel: 'Close',
   zoomOutLabel: 'Zoom out',
   zoomInLabel: 'Zoom in',
+  // Carved into the plinth while zoomed out (3D only, so desktop: click, not tap)
+  zoomHint: 'Click the MacBook to start',
   prevLabel: 'Previous project',
   nextLabel: 'Next project',
   openLabel: 'Open case',
   visitLabel: 'Visit site',
   copyLabel: 'Copy',
   copiedLabel: 'Copied',
+  // Welcome card shown once per browser session (components/screen/HelloScreen)
+  hello: {
+    greeting: "Hey, I'm",
+    name: 'Ahmed Hadrich',
+    role: 'Full-Stack Engineer · Lead Developer · Frontend & AI',
+    cta: 'See projects',
+    portraitAlt: 'Portrait of Ahmed Hadrich',
+  },
 } as const;
 
 export type ScreenPanelId = (typeof screen.panels)[number]['id'];

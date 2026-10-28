@@ -81,3 +81,38 @@ glass MacBook Pro with a transparent display ("everything written on glass").
 - Now: Director times everything with `performance.now()`, and the frameloop is a prop owned by
   MacbookWorld (`onIdle` → `frameloop`), passed to RoomScene / the studio Canvas.
   Never read `state.clock` for timelines in a canvas whose frameloop changes.
+
+## Welcome card (2026-10-28)
+
+- After the lid intro and boot (`boot === 'on'`), the welcome screen takes over the whole display
+  (`components/screen/HelloScreen.tsx`, copy in `screen.hello`, styles `.hello*` in globals.css):
+  the portrait behind the stage (`HelloBackdrop`, at display level; mounted as soon as
+  `hello === 'show'`, so it's on screen while the lid opens and the boot bar runs), with
+  "Hey, I'm Ahmed Hadrich", the role line and a "See projects" button on the left (bottom on
+  narrow screens). The text lives inside the stage so wheel / swipe reach its handlers. Flat and 3D modes.
+- Dismissed by the button, Enter outside a control, ArrowLeft/Right, wheel/trackpad or a horizontal
+  swipe on the stage. One gesture only dismisses (`DISMISS_LOCK_MS` swallows wheel inertia / key
+  repeat). Focus then moves to the stage region. While it is up the carousel is `inert`, and
+  arrows, caption and dock are hidden.
+- Shows on every page load (the user asked for this; it used to be once per session). No storage.
+- Portrait (`HelloBackdrop`): `public/me/portrait-cut.webp`, the user's `portrait.jpg` cropped above
+  the shirt print with the grey backdrop cut out (flood fill from the border through pale neutral
+  pixels, a fitted quadratic backdrop for soft edges, edge unmixing). On the display's own glass at
+  62% of its height, standing on the bottom edge; greeting, role and "See projects" centred above.
+  Tried and dropped: the Workspace.png cutout (`face.webp`), a keyed `face.png` (`hello-face.webp`).
+
+## Load: H on the closed lid, then pull back into the room (2026-10-28)
+
+- Once the model loads: closed lid, close up, the H flickers on (`'closed'`, `LOGO_HOLD_MS`; a click
+  or key skips). Then, instead of opening, the camera pulls back over 2.2s (`T.introZoom`) into the
+  zoomed-out room shot with the lid still shut. Clicking the MacBook zooms in, which opens the lid
+  onto the welcome screen (existing zoom behaviour). No boot bar. Reduced motion: straight to the room.
+- (Briefly the load started on the open screen and pulled back from it; the user wanted the H and
+  closed lid back.) Director's 'opening' phase and `onIntroDone` are no longer reached.
+- MacbookStage sets `zoom = 'out'` at mount in 3D mode. The hint `screen.zoomHint` is carved into the
+  plinth's front face whenever zoomed out (`room/PlinthHint.tsx`, drei Text in three layers: dark
+  grey letters, a shadow sliver above, a pale lip below). Font: `public/fonts/Geist-Regular.ttf`
+  (copied from next's @vercel/og; troika can't read the site's woff2 Satoshi). Fades in after the
+  camera settles (`HINT_DELAY`).
+- The welcome photo's entrance waits for `zoom === 'in'`, so it plays as the lid opens, not unseen.
+- Flat mode (phones, no WebGL) is unchanged: no room, no zoom.

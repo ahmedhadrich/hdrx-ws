@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { H_PATH } from '@/components/ui/mark';
-import { meta, site } from '@/content/copy';
+import { meta, screen, site } from '@/content/copy';
 
 // Link preview card (Open Graph + Twitter), rendered once at build time.
 // Default next/og font: Satori can't read the site's woff2 Satoshi.
@@ -37,8 +37,8 @@ export default function OpengraphImage() {
         </svg>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -3, lineHeight: 1 }}>{site.name}</div>
-          <div style={{ fontSize: 40, color: INK_2, lineHeight: 1.3, maxWidth: 900 }}>{meta.ogDescription}</div>
+          <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -3, lineHeight: 1 }}>{site.person.name}</div>
+          <div style={{ fontSize: 38, color: INK_2, lineHeight: 1.3, maxWidth: 1040 }}>{screen.hello.role}</div>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 28, color: INK_2 }}>

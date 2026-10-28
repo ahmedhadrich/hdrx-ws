@@ -29,8 +29,6 @@ export function MenuBar({ variants, onContact }: Props) {
         <svg viewBox="0 0 100 100" className="menubar__logo" aria-hidden="true">
           <path d={H_PATH} />
         </svg>
-        {/* The page heading for screen readers and search engines */}
-        <h1 className="sr-only">{screen.heading}</h1>
         <button
           type="button"
           className="menubar__app menubar__btn menubar__item"

@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { DISPLAY_PX, MacbookModel, type MacbookRig } from '@/components/three/MacbookModel';
 import { Studio } from '@/components/three/Studio';
 import RoomScene, { CAM_LOOK, CAM_POS, PLINTH_TOP } from './room/RoomScene';
+import { PlinthHint } from './room/PlinthHint';
 import { parallax } from './room/parallax';
 import { setScreenVisible } from '@/components/three/screenVisibility';
 import { useHour, useScreenSettings } from './settings';
@@ -31,8 +32,10 @@ const T = {
   screenStart: 1.7,
   screenDur: 0.6,
   done: 2.35,
-  // zoom in / out, and the catch-up after a skipped intro
+  // zoom in / out
   zoom: 1.3,
+  // After the H lights up: pull back from the closed lid into the room (lid stays shut)
+  introZoom: 2.2,
   // zoom out closes the lid, zoom in opens it; closing waits for the screen to fade first
   lidZoom: 1.4,
   closeDelay: 0.2,
@@ -64,13 +67,15 @@ interface Props {
   onIntroDone: () => void;
   onZoomIn: () => void;
   onError: () => void;
+  /** Carved into the plinth (room only) while `show` */
+  hint: { text: string; show: boolean; delay: number };
 }
 
 // Entrance fade once the first correctly posed frame is on screen
 const FADE_IN_MS = 900;
 
 export default function MacbookWorld(props: Props) {
-  const { withRoom, reducedMotion, onError } = props;
+  const { withRoom, reducedMotion, onError, hint } = props;
   // The 3D display's glow follows the screen settings: same curve as the HTML screen's
   // dimming veil (opacity (1 - brightness) * 0.85), and much dimmer behind the dark glass
   const { theme } = useTheme();
@@ -117,6 +122,7 @@ export default function MacbookWorld(props: Props) {
             <Suspense fallback={null}>
               <Studio environmentOnly />
               {laptop}
+              <PlinthHint {...hint} />
             </Suspense>
           </RoomScene>
         ) : (
@@ -199,6 +205,7 @@ function Director({
     introDone: false,
     zoom: null as Zoom | null,
     zoomStart: -Infinity,
+    zoomDur: T.zoom,
     fromPos: new THREE.Vector3(),
     fromLook: new THREE.Vector3(),
     look: new THREE.Vector3(),
@@ -242,10 +249,14 @@ function Director({
     }
 
     if (s.phase !== phase) {
-      // Entering "open" without finishing the intro (skipped): glide to the current zoom
+      // Intro over (the H has lit, or it was skipped): pull back from the closed lid to the
+      // current zoom (the room). The lid stays shut; zooming in is what opens it.
       if (phase === 'open' && !s.introDone) {
+        s.introDone = true;
         startZoom(s, cam, now, zoom);
-        startLid(s, now, zoom);
+        s.zoomDur = T.introZoom;
+        s.openNow = s.lidFrom = s.lidTo = 0;
+        s.lidStart = -Infinity;
       }
       s.phase = phase;
       s.phaseStart = now;
@@ -289,7 +300,7 @@ function Director({
       phase === 'open' &&
       zoom === 'in' &&
       s.zoom === 'in' &&
-      now - s.zoomStart >= T.zoom &&
+      now - s.zoomStart >= s.zoomDur &&
       now - s.lidStart >= T.lidZoom &&
       performance.now() > wakeUntil.current;
     if (settled && !idle.current) {
@@ -318,7 +329,7 @@ function Director({
       if (zoom === 'in') focusPose(openCorners.current, cam.fov, aspect, pos, look);
       else if (withRoom) roomPose(reducedMotion, pos, look);
       else overviewPose(origin, scale, aspect, pos, look);
-      const k = reducedMotion ? 1 : easeInOut(clamp01((now - s.zoomStart) / T.zoom));
+      const k = reducedMotion ? 1 : easeInOut(clamp01((now - s.zoomStart) / s.zoomDur));
       pos.lerpVectors(s.fromPos, pos, k);
       look.lerpVectors(s.fromLook, look, k);
     }
@@ -376,11 +387,19 @@ function Director({
   );
 }
 
-type ZoomState = { zoom: Zoom | null; zoomStart: number; fromPos: THREE.Vector3; fromLook: THREE.Vector3; look: THREE.Vector3 };
+type ZoomState = {
+  zoom: Zoom | null;
+  zoomStart: number;
+  zoomDur: number;
+  fromPos: THREE.Vector3;
+  fromLook: THREE.Vector3;
+  look: THREE.Vector3;
+};
 
 function startZoom(s: ZoomState, cam: THREE.Camera, now: number, zoom: Zoom) {
   s.zoom = zoom;
   s.zoomStart = now;
+  s.zoomDur = T.zoom;
   s.fromPos.copy(cam.position);
   s.fromLook.copy(s.look);
 }
