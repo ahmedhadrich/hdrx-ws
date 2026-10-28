@@ -29,11 +29,19 @@ export const metadata: Metadata = {
   title: { default: meta.title, template: meta.titleTemplate },
   description: meta.description,
   applicationName: site.name,
-  authors: [{ name: site.name, url: site.url }],
-  creator: site.name,
+  authors: [{ name: site.person.name, url: site.url }],
+  creator: site.person.name,
   alternates: { canonical: '/' },
+  // Allow Google the large image preview and full-length snippets
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+  },
   openGraph: {
-    type: 'website',
+    type: 'profile',
+    firstName: site.person.firstName,
+    lastName: site.person.lastName,
     siteName: site.name,
     title: meta.title,
     description: meta.ogDescription,
@@ -61,16 +69,37 @@ export const viewport: Viewport = {
   colorScheme: 'dark light',
 };
 
-// What the site is, for search engines. A data block, not a script: CSP leaves it alone.
-const ORG = JSON.stringify({
+// Who the site is about, for search engines: a Person (name, role, photo, profiles) and the
+// website they author. A data block, not a script: CSP leaves it alone.
+const PERSON_ID = `${site.url}/#person`;
+const STRUCTURED_DATA = JSON.stringify({
   '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: site.name,
-  url: site.url,
-  description: meta.description,
-  email: `mailto:${site.email}`,
-  address: { '@type': 'PostalAddress', addressCountry: 'DE' },
-  sameAs: site.social.filter((s) => !s.href.startsWith('mailto:')).map((s) => s.href),
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': PERSON_ID,
+      name: site.person.name,
+      givenName: site.person.firstName,
+      familyName: site.person.lastName,
+      alternateName: site.name,
+      jobTitle: site.person.jobTitle,
+      description: meta.description,
+      url: site.url,
+      image: `${site.url}${site.portrait}`,
+      email: `mailto:${site.email}`,
+      address: { '@type': 'PostalAddress', addressCountry: 'DE' },
+      knowsAbout: meta.knowsAbout,
+      sameAs: site.social.filter((s) => !s.href.startsWith('mailto:')).map((s) => s.href),
+    },
+    {
+      '@type': 'WebSite',
+      name: site.name,
+      url: site.url,
+      inLanguage: 'en',
+      author: { '@id': PERSON_ID },
+      about: { '@id': PERSON_ID },
+    },
+  ],
 });
 
 const PREPAINT = `try{var d=document.documentElement;if(matchMedia('(max-width: 767px), (pointer: coarse)').matches)d.dataset.theme=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';else if(localStorage.getItem('hdrx-theme')==='dark')d.dataset.theme='dark';var s=JSON.parse(localStorage.getItem('hdrx-settings')||'null');if(s){var a={signal:'#87bba2',shore:'#e8865a',bone:'#e9dfc8'}[s.accent];if(a)d.style.setProperty('--accent-signal',a);var b=Math.min(1,Math.max(0.3,+s.brightness||1));d.style.setProperty('--screen-dim',((1-b)*0.85).toFixed(3));}}catch(e){}`;
@@ -82,7 +111,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Theme (device setting on mobile, saved choice on desktop) / accent / brightness before first paint, so there's no flash.
             Keys and values mirror lib/hooks/useTheme.tsx and components/screen/settings.ts. */}
         <script dangerouslySetInnerHTML={{ __html: PREPAINT }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ORG }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: STRUCTURED_DATA }} />
       </head>
       <body>
         <a href="#main" className="skip-link">

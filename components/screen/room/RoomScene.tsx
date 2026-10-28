@@ -31,6 +31,8 @@ export const CAM_LOOK = new THREE.Vector3(0, 2.9, 0);
 export const CAM_FOV = 34;
 // Centre of the plinth's top face: the 3D MacBook stands here
 export const PLINTH_TOP = new THREE.Vector3(0, 1.1, 1.2);
+// Centre of the plinth base's front face (the 7 x 0.9 x 3.4 box at z 1.2): the zoom hint is carved here
+export const PLINTH_FRONT = { y: 0.45, z: 1.2 + 3.4 / 2 };
 
 // ---------- Atmosphere: the accent colour sets the room's whole mood ----------
 // signal = golden hour with a sage cast in the bounce (the default), shore = terracotta dusk

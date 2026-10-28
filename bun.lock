@@ -15,6 +15,7 @@
         "simple-icons": "^16.35.0",
         "tailwind-merge": "^3.6.0",
         "three": "^0.184.0",
+        "troika-three-text": "0.52.4",
       },
       "devDependencies": {
         "@eslint/compat": "^2.1.0",
